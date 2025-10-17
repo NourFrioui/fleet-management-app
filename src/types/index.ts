@@ -642,3 +642,40 @@ export interface FileAttachmentFormData {
   description?: string;
   tags?: string[];
 }
+
+// Types pour les extras (tarifs supplémentaires génériques)
+export interface Extra {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  description: string;
+  unit?: string; // ex: "par heure", "par jour", "par mois", "par unité"
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExtraFormData {
+  name: string;
+  category: string;
+  price: number;
+  description: string;
+  unit?: string;
+  isActive: boolean;
+}
+
+// Types pour le profil utilisateur
+export interface UserProfile extends User {
+  phone?: string;
+  avatar?: string;
+}
+
+export interface UserProfileUpdateData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+}

@@ -41,6 +41,10 @@ import WashingForm from "./components/WashingForm";
 import AlertsPage from "./pages/AlertsPage";
 import VehicleFiles from "./pages/VehicleFiles";
 import FuelStatistics from "./pages/FuelStatistics";
+import ExtrasSettings from "./pages/ExtrasSettings";
+import ExtrasDetails from "./pages/ExtrasDetails";
+import ExtrasForm from "./components/ExtrasForm";
+import UserProfile from "./pages/UserProfile";
 
 const App: React.FC = () => {
   return (
@@ -191,17 +195,24 @@ const App: React.FC = () => {
                         element={<WashingForm isEdit={true} />}
                       />
 
+                      {/* Routes pour les paramètres */}
                       <Route
-                        path="/settings"
-                        element={
-                          <div className="p-6">
-                            <h1 className="text-2xl font-bold">Paramètres</h1>
-                            <p className="mt-2 text-gray-600">
-                              Page de paramètres à implémenter
-                            </p>
-                          </div>
-                        }
+                        path="/settings/extras"
+                        element={<ExtrasSettings />}
                       />
+                      <Route
+                        path="/settings/extras/new"
+                        element={<ExtrasForm />}
+                      />
+                      <Route
+                        path="/settings/extras/:id"
+                        element={<ExtrasDetails />}
+                      />
+                      <Route
+                        path="/settings/extras/:id/edit"
+                        element={<ExtrasForm isEdit={true} />}
+                      />
+                      <Route path="/profile" element={<UserProfile />} />
 
                       {/* Route 404 */}
                       <Route
