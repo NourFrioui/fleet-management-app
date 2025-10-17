@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import type { LoginCredentials } from "../types";
 import { Truck, Eye, EyeOff } from "lucide-react";
 
 const Login: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const { login, isLoading, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<LoginCredentials>({
     email: "",
     password: "",
@@ -12,12 +14,21 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string>("");
 
+  // Rediriger vers le dashboard si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       await login(formData);
+      // Rediriger vers le dashboard après une connexion réussie
+      navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     }
@@ -168,7 +179,7 @@ const Login: React.FC = () => {
 
             <div className="mt-4 bg-gray-50 p-4 rounded-md">
               <p className="text-sm text-gray-600 mb-2">
-                <strong>Email:</strong> admin@fleet.com
+                <strong>Email:</strong> admin@fleet.tn
               </p>
               <p className="text-sm text-gray-600">
                 <strong>Mot de passe:</strong> admin123
