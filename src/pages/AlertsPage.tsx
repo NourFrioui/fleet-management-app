@@ -15,7 +15,17 @@ import {
   mockDrivers,
 } from "../data/mockData";
 
-// Mock insurances (temporaire - devrait venir de mockData)
+// Mock insurances avec des dates proches pour générer des alertes
+const today = new Date();
+const in5Days = new Date(today);
+in5Days.setDate(today.getDate() + 5);
+const in10Days = new Date(today);
+in10Days.setDate(today.getDate() + 10);
+const in20Days = new Date(today);
+in20Days.setDate(today.getDate() + 20);
+const in6Months = new Date(today);
+in6Months.setMonth(today.getMonth() + 6);
+
 const mockInsurances = [
   {
     id: "1",
@@ -23,8 +33,14 @@ const mockInsurances = [
     type: "comprehensive" as const,
     company: "STAR Assurances",
     policyNumber: "POL-123456",
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
+    startDate: new Date(
+      today.getFullYear(),
+      today.getMonth() - 11,
+      today.getDate()
+    )
+      .toISOString()
+      .split("T")[0],
+    endDate: in5Days.toISOString().split("T")[0],
     premium: 2400,
     premiumExcludingTax: 2016.0,
     vatRate: 19,
@@ -48,8 +64,14 @@ const mockInsurances = [
     type: "third_party" as const,
     company: "GAT Assurances",
     policyNumber: "POL-789012",
-    startDate: "2023-06-01",
-    endDate: "2024-05-31",
+    startDate: new Date(
+      today.getFullYear(),
+      today.getMonth() - 11,
+      today.getDate()
+    )
+      .toISOString()
+      .split("T")[0],
+    endDate: in10Days.toISOString().split("T")[0],
     premium: 1600,
     premiumExcludingTax: 1344.0,
     vatRate: 19,
@@ -60,12 +82,74 @@ const mockInsurances = [
     premiumIncludingTax: 1600.36,
     coverage: 40000,
     deductible: 300,
-    status: "expired" as const,
+    status: "active" as const,
     agentName: "Fatma Trabelsi",
     agentPhone: "+216 74 456 789",
     notes: "Assurance au tiers",
     createdAt: "2023-06-01T00:00:00Z",
     updatedAt: "2023-06-01T00:00:00Z",
+  },
+  {
+    id: "3",
+    vehicleId: "3",
+    type: "comprehensive" as const,
+    company: "COMAR",
+    policyNumber: "POL-345678",
+    startDate: new Date(
+      today.getFullYear(),
+      today.getMonth() - 11,
+      today.getDate()
+    )
+      .toISOString()
+      .split("T")[0],
+    endDate: in20Days.toISOString().split("T")[0],
+    premium: 2800,
+    premiumExcludingTax: 2352.0,
+    vatRate: 19,
+    vatAmount: 446.88,
+    fiscalStamp: 1.0,
+    otherTaxes: 0,
+    totalTaxAmount: 447.88,
+    premiumIncludingTax: 2799.88,
+    coverage: 100000,
+    deductible: 600,
+    status: "active" as const,
+    agentName: "Ahmed Karim",
+    agentPhone: "+216 98 123 456",
+    notes: "Assurance tous risques premium",
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "4",
+    vehicleId: "4",
+    type: "third_party" as const,
+    company: "STAR Assurances",
+    policyNumber: "POL-567890",
+    startDate: new Date(
+      today.getFullYear(),
+      today.getMonth() - 6,
+      today.getDate()
+    )
+      .toISOString()
+      .split("T")[0],
+    endDate: in6Months.toISOString().split("T")[0],
+    premium: 1400,
+    premiumExcludingTax: 1176.0,
+    vatRate: 19,
+    vatAmount: 223.44,
+    fiscalStamp: 1.0,
+    otherTaxes: 0,
+    totalTaxAmount: 224.44,
+    premiumIncludingTax: 1400.44,
+    coverage: 35000,
+    deductible: 250,
+    status: "active" as const,
+    agentName: "Salma Jebali",
+    agentPhone: "+216 22 987 654",
+    notes: "Assurance au tiers",
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
 ];
 

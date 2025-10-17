@@ -369,6 +369,19 @@ export const mockMaintenances: Maintenance[] = [
   },
 ];
 
+// Générer des dates dynamiques pour les alertes
+const generateFutureDate = (daysFromNow: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() + daysFromNow);
+  return date.toISOString().split("T")[0];
+};
+
+const generatePastDate = (daysAgo: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toISOString().split("T")[0];
+};
+
 // Données de vidanges (séparées de la maintenance)
 export const mockOilChanges: OilChange[] = [
   {
@@ -395,8 +408,8 @@ export const mockOilChanges: OilChange[] = [
   {
     id: "2",
     vehicleId: "2",
-    scheduledDate: "2024-02-10",
-    completedDate: "2024-02-10",
+    scheduledDate: generatePastDate(45),
+    completedDate: generatePastDate(45),
     status: "completed",
     cost: 95,
     mileage: 125000,
@@ -409,9 +422,9 @@ export const mockOilChanges: OilChange[] = [
     technician: "Atelier Mécanique Central",
     serviceCenter: "Garage Central - Tunis",
     nextOilChangeMileage: 135000,
-    nextOilChangeDate: "2024-05-10",
-    createdAt: "2024-01-10T00:00:00Z",
-    updatedAt: "2024-02-10T00:00:00Z",
+    nextOilChangeDate: generateFutureDate(2), // Dans 2 jours - Alerte haute priorité
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "3",
@@ -484,8 +497,8 @@ export const mockTechnicalInspections: TechnicalInspection[] = [
     id: "1",
     vehicleId: "1",
     inspectionType: "periodic",
-    inspectionDate: "2024-01-15",
-    expiryDate: "2026-01-15",
+    inspectionDate: generatePastDate(360), // Il y a 1 an
+    expiryDate: generateFutureDate(4), // Expire dans 4 jours - Alerte haute priorité
     result: "favorable",
     mileage: 45000,
     cost: 85,
@@ -503,8 +516,8 @@ export const mockTechnicalInspections: TechnicalInspection[] = [
     id: "2",
     vehicleId: "2",
     inspectionType: "periodic",
-    inspectionDate: "2024-02-10",
-    expiryDate: "2026-02-10",
+    inspectionDate: generatePastDate(350), // Il y a presque 1 an
+    expiryDate: generateFutureDate(15), // Expire dans 15 jours
     result: "favorable_with_restrictions",
     mileage: 125000,
     cost: 85,
