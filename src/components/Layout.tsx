@@ -20,6 +20,9 @@ import {
   Disc,
   Sparkles,
   Bell,
+  Settings,
+  Tag,
+  User as UserIcon,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -31,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -72,6 +76,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Carburant", href: "/fuel", icon: Fuel },
     { name: "Assurances", href: "/insurance", icon: Shield },
     { name: "Alertes & Rappels", href: "/alerts", icon: Bell },
+    {
+      name: "Paramètres",
+      icon: Settings,
+      hasSubmenu: true,
+      subItems: [
+        {
+          name: "Gestion des Extras",
+          href: "/settings/extras",
+          icon: Tag,
+        },
+        {
+          name: "Mon Profil",
+          href: "/profile",
+          icon: UserIcon,
+        },
+      ],
+    },
   ];
 
   const isCurrentPath = (path: string) => {
@@ -87,6 +108,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       location.pathname.startsWith("/technical-inspection") ||
       location.pathname.startsWith("/tire-change") ||
       location.pathname.startsWith("/washing")
+    );
+  };
+
+  const isSettingsActive = () => {
+    return (
+      location.pathname.startsWith("/settings") ||
+      location.pathname.startsWith("/profile")
     );
   };
 
@@ -129,12 +157,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {navigation.map((item) => {
                 const Icon = item.icon;
                 if (item.hasSubmenu) {
+                  const isMenuActive =
+                    item.name === "Maintenance"
+                      ? isMaintenanceActive()
+                      : isSettingsActive();
+                  const isMenuOpen =
+                    item.name === "Maintenance"
+                      ? maintenanceOpen
+                      : settingsOpen;
+                  const toggleMenu =
+                    item.name === "Maintenance"
+                      ? () => setMaintenanceOpen(!maintenanceOpen)
+                      : () => setSettingsOpen(!settingsOpen);
+
                   return (
                     <div key={item.name}>
                       <button
-                        onClick={() => setMaintenanceOpen(!maintenanceOpen)}
+                        onClick={toggleMenu}
                         className={`${
-                          isMaintenanceActive()
+                          isMenuActive
                             ? "bg-primary-100 text-primary-900"
                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         } w-full group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md`}
@@ -143,13 +184,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           <Icon className="mr-4 h-6 w-6" />
                           {item.name}
                         </div>
-                        {maintenanceOpen ? (
+                        {isMenuOpen ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
                           <ChevronRight className="h-4 w-4" />
                         )}
                       </button>
-                      {maintenanceOpen && (
+                      {isMenuOpen && (
                         <div className="ml-4 mt-1 space-y-1">
                           {item.subItems?.map((subItem) => {
                             const SubIcon = subItem.icon;
@@ -215,12 +256,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   if (item.hasSubmenu) {
+                    const isMenuActive =
+                      item.name === "Maintenance"
+                        ? isMaintenanceActive()
+                        : isSettingsActive();
+                    const isMenuOpen =
+                      item.name === "Maintenance"
+                        ? maintenanceOpen
+                        : settingsOpen;
+                    const toggleMenu =
+                      item.name === "Maintenance"
+                        ? () => setMaintenanceOpen(!maintenanceOpen)
+                        : () => setSettingsOpen(!settingsOpen);
+
                     return (
                       <div key={item.name}>
                         <button
-                          onClick={() => setMaintenanceOpen(!maintenanceOpen)}
+                          onClick={toggleMenu}
                           className={`${
-                            isMaintenanceActive()
+                            isMenuActive
                               ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25"
                               : "text-gray-700 hover:bg-blue-50/50 hover:text-blue-700"
                           } w-full group flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300`}
@@ -228,20 +282,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           <div className="flex items-center">
                             <Icon
                               className={`mr-3 h-5 w-5 transition-colors ${
-                                isMaintenanceActive()
+                                isMenuActive
                                   ? "text-white"
                                   : "text-gray-500 group-hover:text-blue-600"
                               }`}
                             />
                             {item.name}
                           </div>
-                          {maintenanceOpen ? (
+                          {isMenuOpen ? (
                             <ChevronDown className="h-4 w-4" />
                           ) : (
                             <ChevronRight className="h-4 w-4" />
                           )}
                         </button>
-                        {maintenanceOpen && (
+                        {isMenuOpen && (
                           <div className="ml-4 mt-1 space-y-1">
                             {item.subItems?.map((subItem) => {
                               const SubIcon = subItem.icon;
