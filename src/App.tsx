@@ -33,7 +33,11 @@ import InsuranceDetails from "./pages/InsuranceDetails";
 import InsuranceForm from "./components/InsuranceForm";
 import DriverDetails from "./pages/DriverDetails";
 import TireChangePage from "./pages/TireChangePage";
+import TireChangeDetails from "./pages/TireChangeDetails";
+import TireChangeForm from "./components/TireChangeForm";
 import WashingPage from "./pages/WashingPage";
+import WashingDetails from "./pages/WashingDetails";
+import WashingForm from "./components/WashingForm";
 import FuelStatistics from "./pages/FuelStatistics";
 import AlertsPage from "./pages/AlertsPage";
 import VehicleFiles from "./pages/VehicleFiles";
@@ -163,6 +167,28 @@ const App: React.FC = () => {
                       <Route
                         path="/insurance/:id/edit"
                         element={<InsuranceForm isEdit={true} />}
+                      />
+
+                      {/* Routes pour les changements de pneus */}
+                      <Route
+                        path="/tire-change/new"
+                        element={<TireChangeForm />}
+                      />
+                      <Route
+                        path="/tire-change/:id"
+                        element={<TireChangeDetails />}
+                      />
+                      <Route
+                        path="/tire-change/:id/edit"
+                        element={<TireChangeForm isEdit={true} />}
+                      />
+
+                      {/* Routes pour les lavages */}
+                      <Route path="/washing/new" element={<WashingForm />} />
+                      <Route path="/washing/:id" element={<WashingDetails />} />
+                      <Route
+                        path="/washing/:id/edit"
+                        element={<WashingForm isEdit={true} />}
                       />
 
                       <Route
