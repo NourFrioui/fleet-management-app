@@ -11,6 +11,11 @@ import {
   Wrench,
 } from "lucide-react";
 import { mockMaintenances, mockVehicles } from "../data/mockData";
+import {
+  exportToCSV,
+  formatDateForExport,
+  formatAmountForExport,
+} from "../utils/exportUtils";
 
 const MaintenancePage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,7 +66,38 @@ const MaintenancePage: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export maintenances data");
+    const exportData = filteredMaintenances.map((maintenance) => ({
+      date: maintenance.completedDate
+        ? formatDateForExport(maintenance.completedDate)
+        : formatDateForExport(maintenance.scheduledDate),
+      vehicule: getVehicleInfo(maintenance.vehicleId),
+      type: maintenance.type.replace("_", " "),
+      description: maintenance.description,
+      kilometrage: maintenance.mileage,
+      cout: formatAmountForExport(maintenance.cost || 0),
+      technicien: maintenance.technician || "",
+      statut:
+        maintenance.status === "completed"
+          ? "Terminée"
+          : maintenance.status === "in_progress"
+          ? "En cours"
+          : maintenance.status === "scheduled"
+          ? "Programmée"
+          : "Annulée",
+    }));
+
+    const headers = [
+      { key: "date", label: "Date" },
+      { key: "vehicule", label: "Véhicule" },
+      { key: "type", label: "Type" },
+      { key: "description", label: "Description" },
+      { key: "kilometrage", label: "Kilométrage (km)" },
+      { key: "cout", label: "Coût" },
+      { key: "technicien", label: "Technicien" },
+      { key: "statut", label: "Statut" },
+    ];
+
+    exportToCSV(exportData, headers, "maintenances");
   };
 
   return (

@@ -11,6 +11,11 @@ import {
   Droplets,
 } from "lucide-react";
 import { mockOilChanges, mockVehicles } from "../data/mockData";
+import {
+  exportToCSV,
+  formatDateForExport,
+  formatAmountForExport,
+} from "../utils/exportUtils";
 
 const OilChangePage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +60,40 @@ const OilChangePage: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export oil changes data");
+    const exportData = filteredOilChanges.map((oilChange) => ({
+      date: oilChange.completedDate
+        ? formatDateForExport(oilChange.completedDate)
+        : formatDateForExport(oilChange.scheduledDate),
+      vehicule: getVehicleInfo(oilChange.vehicleId),
+      typeHuile: oilChange.oilType,
+      marqueHuile: oilChange.oilBrand || "",
+      quantite: `${oilChange.oilQuantity} L`,
+      kilometrage: oilChange.mileage,
+      cout: formatAmountForExport(oilChange.cost || 0),
+      centre: oilChange.serviceCenter || "",
+      statut:
+        oilChange.status === "completed"
+          ? "Terminée"
+          : oilChange.status === "in_progress"
+          ? "En cours"
+          : oilChange.status === "scheduled"
+          ? "Programmée"
+          : "Annulée",
+    }));
+
+    const headers = [
+      { key: "date", label: "Date" },
+      { key: "vehicule", label: "Véhicule" },
+      { key: "typeHuile", label: "Type d'huile" },
+      { key: "marqueHuile", label: "Marque" },
+      { key: "quantite", label: "Quantité" },
+      { key: "kilometrage", label: "Kilométrage (km)" },
+      { key: "cout", label: "Coût" },
+      { key: "centre", label: "Centre" },
+      { key: "statut", label: "Statut" },
+    ];
+
+    exportToCSV(exportData, headers, "vidanges");
   };
 
   return (

@@ -11,6 +11,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { mockVehicles } from "../data/mockData";
+import { exportToCSV, formatDateForExport } from "../utils/exportUtils";
 
 const Vehicles: React.FC = () => {
   const navigate = useNavigate();
@@ -23,8 +24,7 @@ const Vehicles: React.FC = () => {
       searchTerm === "" ||
       vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.vin?.toLowerCase().includes(searchTerm.toLowerCase());
+      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       filterStatus === "" || vehicle.status === filterStatus;
@@ -48,7 +48,52 @@ const Vehicles: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export vehicles data");
+    const exportData = filteredVehicles.map((vehicle) => ({
+      immatriculation: vehicle.plateNumber,
+      marque: vehicle.brand,
+      modele: vehicle.model,
+      type:
+        vehicle.type === "car"
+          ? "Voiture"
+          : vehicle.type === "truck"
+          ? "Camion"
+          : vehicle.type === "van"
+          ? "Van"
+          : "Autre",
+      carburant:
+        vehicle.fuelType === "diesel"
+          ? "Diesel"
+          : vehicle.fuelType === "gasoline"
+          ? "Essence"
+          : "Électrique",
+      annee: vehicle.year,
+      kilometrage: vehicle.mileage || 0,
+      couleur: vehicle.color || "",
+      vin: "",
+      statut:
+        vehicle.status === "active"
+          ? "Actif"
+          : vehicle.status === "maintenance"
+          ? "Maintenance"
+          : "Inactif",
+      dateAchat: formatDateForExport(vehicle.purchaseDate),
+    }));
+
+    const headers = [
+      { key: "immatriculation", label: "Immatriculation" },
+      { key: "marque", label: "Marque" },
+      { key: "modele", label: "Modèle" },
+      { key: "type", label: "Type" },
+      { key: "carburant", label: "Carburant" },
+      { key: "annee", label: "Année" },
+      { key: "kilometrage", label: "Kilométrage (km)" },
+      { key: "couleur", label: "Couleur" },
+      { key: "vin", label: "VIN" },
+      { key: "statut", label: "Statut" },
+      { key: "dateAchat", label: "Date d'achat" },
+    ];
+
+    exportToCSV(exportData, headers, "vehicules");
   };
 
   return (
@@ -243,9 +288,7 @@ const Vehicles: React.FC = () => {
                         ? "Camion"
                         : vehicle.type === "van"
                         ? "Van"
-                        : vehicle.type === "suv"
-                        ? "SUV"
-                        : vehicle.type}
+                        : "Autre"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
                       {vehicle.fuelType === "diesel"

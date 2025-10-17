@@ -19,7 +19,6 @@ import {
   ClipboardCheck,
   Disc,
   Sparkles,
-  BarChart3,
   Bell,
 } from "lucide-react";
 
@@ -71,11 +70,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       ],
     },
     { name: "Carburant", href: "/fuel", icon: Fuel },
-    {
-      name: "Statistiques Carburant",
-      href: "/fuel-statistics",
-      icon: BarChart3,
-    },
     { name: "Assurances", href: "/insurance", icon: Shield },
     { name: "Alertes & Rappels", href: "/alerts", icon: Bell },
   ];

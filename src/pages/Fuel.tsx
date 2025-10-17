@@ -12,6 +12,11 @@ import {
   Gauge,
 } from "lucide-react";
 import { mockFuelRecords, mockVehicles } from "../data/mockData";
+import {
+  exportToCSV,
+  formatDateForExport,
+  formatAmountForExport,
+} from "../utils/exportUtils";
 
 const FuelPage: React.FC = () => {
   const navigate = useNavigate();
@@ -67,7 +72,36 @@ const FuelPage: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export fuel records data");
+    const exportData = filteredFuelRecords.map((record) => ({
+      date: formatDateForExport(record.date),
+      vehicule: getVehicleInfo(record.vehicleId),
+      type:
+        record.fuelType === "diesel"
+          ? "Diesel"
+          : record.fuelType === "gasoline"
+          ? "Essence"
+          : "Électrique",
+      quantite: `${record.quantity.toFixed(2)} L`,
+      prixParLitre: formatAmountForExport(record.cost / record.quantity),
+      coutTotal: formatAmountForExport(record.cost),
+      kilometrage: record.mileage,
+      station: record.station || "",
+      notes: record.notes || "",
+    }));
+
+    const headers = [
+      { key: "date", label: "Date" },
+      { key: "vehicule", label: "Véhicule" },
+      { key: "type", label: "Type Carburant" },
+      { key: "quantite", label: "Quantité" },
+      { key: "prixParLitre", label: "Prix/Litre" },
+      { key: "coutTotal", label: "Coût Total" },
+      { key: "kilometrage", label: "Kilométrage (km)" },
+      { key: "station", label: "Station" },
+      { key: "notes", label: "Notes" },
+    ];
+
+    exportToCSV(exportData, headers, "carburant");
   };
 
   return (

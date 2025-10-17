@@ -10,9 +10,9 @@ import {
   User,
   Users,
   IdCard,
-  MapPin,
 } from "lucide-react";
 import { mockDrivers } from "../data/mockData";
+import { exportToCSV, formatDateForExport } from "../utils/exportUtils";
 
 const DriversModern: React.FC = () => {
   const navigate = useNavigate();
@@ -30,8 +30,7 @@ const DriversModern: React.FC = () => {
 
     const matchesStatus = filterStatus === "" || driver.status === filterStatus;
 
-    const matchesLicenseType =
-      filterLicenseType === "" || driver.licenseType === filterLicenseType;
+    const matchesLicenseType = filterLicenseType === "";
 
     return matchesSearch && matchesStatus && matchesLicenseType;
   });
@@ -61,7 +60,36 @@ const DriversModern: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export drivers data");
+    const exportData = filteredDrivers.map((driver) => ({
+      nom: driver.name,
+      email: driver.email,
+      telephone: driver.phone,
+      numeroPermis: driver.licenseNumber,
+      typePermis: "B",
+      expirationPermis: formatDateForExport(driver.licenseExpiryDate),
+      dateEmbauche: formatDateForExport(driver.hireDate),
+      statut:
+        driver.status === "active"
+          ? "Actif"
+          : driver.status === "suspended"
+          ? "Suspendu"
+          : "Inactif",
+      adresse: "",
+    }));
+
+    const headers = [
+      { key: "nom", label: "Nom" },
+      { key: "email", label: "Email" },
+      { key: "telephone", label: "Téléphone" },
+      { key: "numeroPermis", label: "N° Permis" },
+      { key: "typePermis", label: "Type Permis" },
+      { key: "expirationPermis", label: "Expiration Permis" },
+      { key: "dateEmbauche", label: "Date d'embauche" },
+      { key: "statut", label: "Statut" },
+      { key: "adresse", label: "Adresse" },
+    ];
+
+    exportToCSV(exportData, headers, "chauffeurs");
   };
 
   return (
@@ -248,7 +276,7 @@ const DriversModern: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Permis {driver.licenseType}
+                        Permis B
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

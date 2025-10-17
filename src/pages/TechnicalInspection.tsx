@@ -11,6 +11,11 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { mockTechnicalInspections, mockVehicles } from "../data/mockData";
+import {
+  exportToCSV,
+  formatDateForExport,
+  formatAmountForExport,
+} from "../utils/exportUtils";
 
 const TechnicalInspectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,7 +68,36 @@ const TechnicalInspectionPage: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export inspections data");
+    const exportData = filteredInspections.map((inspection) => ({
+      date: formatDateForExport(inspection.inspectionDate),
+      vehicule: getVehicleInfo(inspection.vehicleId),
+      type: inspection.inspectionType.replace("_", " "),
+      resultat:
+        inspection.result === "favorable"
+          ? "Favorable"
+          : inspection.result === "unfavorable"
+          ? "Défavorable"
+          : "Avec réserves",
+      expiration: formatDateForExport(inspection.expiryDate),
+      kilometrage: inspection.mileage,
+      cout: formatAmountForExport(inspection.cost),
+      centre: inspection.inspectionCenter,
+      inspecteur: inspection.inspectorName,
+    }));
+
+    const headers = [
+      { key: "date", label: "Date" },
+      { key: "vehicule", label: "Véhicule" },
+      { key: "type", label: "Type" },
+      { key: "resultat", label: "Résultat" },
+      { key: "expiration", label: "Expiration" },
+      { key: "kilometrage", label: "Kilométrage (km)" },
+      { key: "cout", label: "Coût" },
+      { key: "centre", label: "Centre" },
+      { key: "inspecteur", label: "Inspecteur" },
+    ];
+
+    exportToCSV(exportData, headers, "visites_techniques");
   };
 
   return (

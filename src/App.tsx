@@ -38,7 +38,6 @@ import TireChangeForm from "./components/TireChangeForm";
 import WashingPage from "./pages/WashingPage";
 import WashingDetails from "./pages/WashingDetails";
 import WashingForm from "./components/WashingForm";
-import FuelStatistics from "./pages/FuelStatistics";
 import AlertsPage from "./pages/AlertsPage";
 import VehicleFiles from "./pages/VehicleFiles";
 
@@ -78,10 +77,6 @@ const App: React.FC = () => {
                       <Route path="/fuel" element={<FuelPage />} />
                       <Route path="/tire-change" element={<TireChangePage />} />
                       <Route path="/washing" element={<WashingPage />} />
-                      <Route
-                        path="/fuel-statistics"
-                        element={<FuelStatistics />}
-                      />
                       <Route path="/alerts" element={<AlertsPage />} />
 
                       {/* Routes pour les formulaires (à implémenter) */}

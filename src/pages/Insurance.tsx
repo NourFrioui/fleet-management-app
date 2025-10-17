@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { mockVehicles } from "../data/mockData";
 import type { Insurance as InsuranceType } from "../types";
+import {
+  exportToCSV,
+  formatDateForExport,
+  formatAmountForExport,
+} from "../utils/exportUtils";
 
 const Insurance: React.FC = () => {
   const navigate = useNavigate();
@@ -164,7 +169,51 @@ const Insurance: React.FC = () => {
   };
 
   const handleExport = () => {
-    console.log("Export insurance data");
+    const exportData = filteredInsurances.map((insurance) => ({
+      vehicule: getVehicleInfo(insurance.vehicleId),
+      compagnie: insurance.company,
+      type:
+        insurance.type === "comprehensive"
+          ? "Tous risques"
+          : insurance.type === "third_party"
+          ? "Au tiers"
+          : "Commercial",
+      numeroPolice: insurance.policyNumber,
+      debut: formatDateForExport(insurance.startDate),
+      expiration: formatDateForExport(insurance.endDate),
+      primeHT: formatAmountForExport(insurance.premiumExcludingTax || 0),
+      primeTTC: formatAmountForExport(
+        insurance.premiumIncludingTax || insurance.premium
+      ),
+      couverture: formatAmountForExport(insurance.coverage),
+      franchise: formatAmountForExport(insurance.deductible),
+      agent: insurance.agentName || "",
+      telephone: insurance.agentPhone || "",
+      statut:
+        insurance.status === "active"
+          ? "Active"
+          : insurance.status === "expired"
+          ? "Expirée"
+          : "Annulée",
+    }));
+
+    const headers = [
+      { key: "vehicule", label: "Véhicule" },
+      { key: "compagnie", label: "Compagnie" },
+      { key: "type", label: "Type" },
+      { key: "numeroPolice", label: "N° Police" },
+      { key: "debut", label: "Début" },
+      { key: "expiration", label: "Expiration" },
+      { key: "primeHT", label: "Prime HT" },
+      { key: "primeTTC", label: "Prime TTC" },
+      { key: "couverture", label: "Couverture" },
+      { key: "franchise", label: "Franchise" },
+      { key: "agent", label: "Agent" },
+      { key: "telephone", label: "Téléphone" },
+      { key: "statut", label: "Statut" },
+    ];
+
+    exportToCSV(exportData, headers, "assurances");
   };
 
   return (
