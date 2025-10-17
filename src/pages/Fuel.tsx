@@ -165,7 +165,7 @@ const FuelPage: React.FC = () => {
                     Coût Total
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {totalCost.toFixed(2)} €
+                    {totalCost.toFixed(2)} TND
                   </dd>
                 </dl>
               </div>
@@ -205,7 +205,7 @@ const FuelPage: React.FC = () => {
                     Prix Moyen/Litre
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {averageCostPerLiter.toFixed(2)} €
+                    {averageCostPerLiter.toFixed(2)} TND
                   </dd>
                 </dl>
               </div>
@@ -353,7 +353,7 @@ const FuelPage: React.FC = () => {
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 mr-1" />
-                          <span>{record.cost.toFixed(2)}€</span>
+                          <span>{record.cost.toFixed(2)}TND</span>
                         </div>
                         <div className="flex items-center">
                           <TrendingUp className="h-4 w-4 mr-1" />
@@ -385,7 +385,7 @@ const FuelPage: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <div className="text-right">
                       <div className="text-sm font-medium text-gray-900">
-                        {(record.cost / record.quantity).toFixed(2)}€/L
+                        {(record.cost / record.quantity).toFixed(2)}TND/L
                       </div>
                       <div className="text-xs text-gray-500">
                         {calculateConsumption(record).toFixed(1)}L/100km

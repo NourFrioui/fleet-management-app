@@ -218,7 +218,7 @@ const TechnicalInspectionDetails: React.FC<TechnicalInspectionDetailsProps> = ({
                         Coût
                       </dt>
                       <dd className="mt-1 text-sm text-gray-900">
-                        {inspection.cost}€
+                        {inspection.cost}TND
                       </dd>
                     </div>
                     {inspection.nextInspectionDate && (
@@ -308,7 +308,7 @@ const TechnicalInspectionDetails: React.FC<TechnicalInspectionDetailsProps> = ({
                                 Coût de rectification
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {defect.cost}€
+                                {defect.cost}TND
                               </dd>
                             </div>
                           )}
@@ -413,7 +413,7 @@ const TechnicalInspectionDetails: React.FC<TechnicalInspectionDetailsProps> = ({
                         Coût de la visite
                       </dt>
                       <dd className="text-sm text-gray-900">
-                        {inspection.cost}€
+                        {inspection.cost}TND
                       </dd>
                     </div>
                     {inspection.defects &&
@@ -426,7 +426,7 @@ const TechnicalInspectionDetails: React.FC<TechnicalInspectionDetailsProps> = ({
                             {inspection.defects
                               .filter((d) => d.rectified && d.cost)
                               .reduce((sum, d) => sum + (d.cost || 0), 0)}
-                            €
+                            TND
                           </dd>
                         </div>
                       )}
@@ -440,7 +440,7 @@ const TechnicalInspectionDetails: React.FC<TechnicalInspectionDetailsProps> = ({
                             (inspection.defects
                               ?.filter((d) => d.rectified && d.cost)
                               .reduce((sum, d) => sum + (d.cost || 0), 0) || 0)}
-                          €
+                          TND
                         </dd>
                       </div>
                     </div>

@@ -321,7 +321,7 @@ const MaintenancePage: React.FC = () => {
                     </span>
                     {maintenance.cost && (
                       <span className="text-sm font-medium text-gray-900">
-                        {maintenance.cost}€
+                        {maintenance.cost}TND
                       </span>
                     )}
                     <Link

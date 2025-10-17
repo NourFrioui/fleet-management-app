@@ -340,7 +340,7 @@ const FuelCards: React.FC = () => {
                   {fuelCards
                     .reduce((sum, card) => sum + card.currentUsage, 0)
                     .toLocaleString()}
-                  €
+                  TND
                 </dd>
               </dl>
             </div>
@@ -492,8 +492,8 @@ const FuelCards: React.FC = () => {
                           <div className="mt-2 flex items-center text-sm text-gray-500">
                             <DollarSign className="h-4 w-4 mr-1" />
                             <span>
-                              {card.currentUsage.toLocaleString()}€ /{" "}
-                              {card.monthlyLimit.toLocaleString()}€
+                              {card.currentUsage.toLocaleString()}TND /{" "}
+                              {card.monthlyLimit.toLocaleString()}TND
                             </span>
                             <span className="mx-2">•</span>
                             <span

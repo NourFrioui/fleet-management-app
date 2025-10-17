@@ -609,7 +609,7 @@ const VehicleDetails: React.FC = () => {
                                 {maintenance.cost && (
                                   <>
                                     <span className="mx-2">•</span>
-                                    <span>{maintenance.cost}€</span>
+                                    <span>{maintenance.cost}TND</span>
                                   </>
                                 )}
                               </div>
@@ -665,7 +665,7 @@ const VehicleDetails: React.FC = () => {
                     Coût total
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {totalFuelCost.toFixed(2)}€
+                    {totalFuelCost.toFixed(2)}TND
                   </p>
                 </div>
                 <div>
@@ -673,7 +673,7 @@ const VehicleDetails: React.FC = () => {
                     Prix moyen au litre
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {averageConsumption}€/L
+                    {averageConsumption}TND/L
                   </p>
                 </div>
               </div>
@@ -705,7 +705,7 @@ const VehicleDetails: React.FC = () => {
                                   {getFuelTypeText(record.fuelType)}
                                 </p>
                                 <span className="ml-2 text-sm font-medium text-green-600">
-                                  {record.cost}€
+                                  {record.cost}TND
                                 </span>
                               </div>
                               <div className="mt-1 flex items-center text-sm text-gray-500">
@@ -813,7 +813,7 @@ const VehicleDetails: React.FC = () => {
                                 </span>
                                 <span className="mx-2">•</span>
                                 <span className="font-medium">
-                                  {insurance.premium}€/an
+                                  {insurance.premium}TND/an
                                 </span>
                               </div>
                             </div>

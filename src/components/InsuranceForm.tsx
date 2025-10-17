@@ -27,7 +27,14 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
     startDate:
       searchParams.get("startDate") || new Date().toISOString().split("T")[0],
     endDate: searchParams.get("endDate") || "",
-    premium: parseFloat(searchParams.get("premium") || "0") || 0,
+    premium: parseFloat(searchParams.get("premium") || "0") || 0, // Obsolète
+    premiumExcludingTax: 0,
+    vatRate: 19, // TVA standard en Tunisie : 19%
+    vatAmount: 0,
+    fiscalStamp: 1.0, // Timbre fiscal standard : 1 TND
+    otherTaxes: 0,
+    totalTaxAmount: 0,
+    premiumIncludingTax: 0,
     coverage: parseFloat(searchParams.get("coverage") || "0") || 0,
     deductible: parseFloat(searchParams.get("deductible") || "0") || 0,
     agentName: searchParams.get("agentName") || "",
@@ -72,12 +79,63 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+
+    let updatedData: any = {
       [name]:
-        name === "premium" || name === "coverage" || name === "deductible"
+        name === "premium" ||
+        name === "coverage" ||
+        name === "deductible" ||
+        name === "premiumExcludingTax" ||
+        name === "vatRate" ||
+        name === "fiscalStamp" ||
+        name === "otherTaxes"
           ? parseFloat(value) || 0
           : value,
+    };
+
+    // Calculer automatiquement toutes les taxes et le prix TTC
+    if (
+      name === "premiumExcludingTax" ||
+      name === "vatRate" ||
+      name === "fiscalStamp" ||
+      name === "otherTaxes"
+    ) {
+      const ht =
+        name === "premiumExcludingTax"
+          ? parseFloat(value) || 0
+          : formData.premiumExcludingTax || 0;
+      const vatRate =
+        name === "vatRate" ? parseFloat(value) || 0 : formData.vatRate || 19;
+      const fiscalStamp =
+        name === "fiscalStamp"
+          ? parseFloat(value) || 0
+          : formData.fiscalStamp || 1.0;
+      const otherTaxes =
+        name === "otherTaxes"
+          ? parseFloat(value) || 0
+          : formData.otherTaxes || 0;
+
+      // Calculer la TVA
+      const vatAmount = (ht * vatRate) / 100;
+
+      // Total des taxes (TVA + Timbre fiscal + Autres)
+      const totalTaxAmount = vatAmount + fiscalStamp + otherTaxes;
+
+      // Prix TTC
+      const ttc = ht + totalTaxAmount;
+
+      updatedData = {
+        ...updatedData,
+        vatAmount: Math.round(vatAmount * 100) / 100,
+        totalTaxAmount: Math.round(totalTaxAmount * 100) / 100,
+        premiumIncludingTax: Math.round(ttc * 100) / 100,
+        premium: Math.round(ttc * 100) / 100, // Garder l'ancien champ à jour
+      };
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      ...updatedData,
     }));
 
     // Clear error when user starts typing
@@ -364,30 +422,165 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
               </p>
             </div>
 
-            {/* Prime annuelle */}
+            {/* Prix HT */}
             <div>
               <label
-                htmlFor="premium"
+                htmlFor="premiumExcludingTax"
                 className="block text-sm font-medium text-gray-700"
               >
-                Prime annuelle (€) *
+                Prime annuelle HT (TND) *
               </label>
               <input
                 type="number"
-                id="premium"
-                name="premium"
-                value={formData.premium}
+                id="premiumExcludingTax"
+                name="premiumExcludingTax"
+                value={formData.premiumExcludingTax}
                 onChange={handleInputChange}
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
-                  errors.premium ? "border-red-300" : ""
+                  errors.premiumExcludingTax ? "border-red-300" : ""
                 }`}
               />
-              {errors.premium && (
-                <p className="mt-1 text-sm text-red-600">{errors.premium}</p>
+              {errors.premiumExcludingTax && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.premiumExcludingTax}
+                </p>
               )}
+            </div>
+
+            {/* Taux TVA */}
+            <div>
+              <label
+                htmlFor="vatRate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Taux TVA (%) *
+              </label>
+              <select
+                id="vatRate"
+                name="vatRate"
+                value={formData.vatRate}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              >
+                <option value="19">19% - TVA Standard</option>
+                <option value="7">7% - TVA Réduite</option>
+                <option value="13">13% - TVA Intermédiaire</option>
+                <option value="0">0% - Exonéré</option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                TVA standard en Tunisie : 19%
+              </p>
+            </div>
+
+            {/* Timbre fiscal */}
+            <div>
+              <label
+                htmlFor="fiscalStamp"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Timbre fiscal (TND) *
+              </label>
+              <input
+                type="number"
+                id="fiscalStamp"
+                name="fiscalStamp"
+                value={formData.fiscalStamp}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                placeholder="1.00"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Timbre fiscal standard : 1 TND
+              </p>
+            </div>
+
+            {/* Autres taxes */}
+            <div>
+              <label
+                htmlFor="otherTaxes"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Autres taxes (TND)
+              </label>
+              <input
+                type="number"
+                id="otherTaxes"
+                name="otherTaxes"
+                value={formData.otherTaxes}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Taxes additionnelles (optionnel)
+              </p>
+            </div>
+
+            {/* Montant TVA (calculé) */}
+            <div>
+              <label
+                htmlFor="vatAmount"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Montant TVA (TND)
+              </label>
+              <input
+                type="text"
+                id="vatAmount"
+                value={formData.vatAmount?.toFixed(2) || "0.00"}
+                disabled
+                className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm text-gray-700 sm:text-sm cursor-not-allowed"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Calculé automatiquement
+              </p>
+            </div>
+
+            {/* Total des taxes (calculé) */}
+            <div>
+              <label
+                htmlFor="totalTaxAmount"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Total des taxes (TND)
+              </label>
+              <input
+                type="text"
+                id="totalTaxAmount"
+                value={formData.totalTaxAmount?.toFixed(2) || "0.00"}
+                disabled
+                className="mt-1 block w-full rounded-md bg-blue-50 border-blue-300 shadow-sm font-medium text-blue-900 sm:text-sm cursor-not-allowed"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                TVA + Timbre fiscal + Autres
+              </p>
+            </div>
+
+            {/* Prix TTC (calculé) */}
+            <div>
+              <label
+                htmlFor="premiumIncludingTax"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Prime annuelle TTC (TND) *
+              </label>
+              <input
+                type="text"
+                id="premiumIncludingTax"
+                value={formData.premiumIncludingTax?.toFixed(2) || "0.00"}
+                disabled
+                className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm font-medium text-gray-900 sm:text-sm cursor-not-allowed"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Prix final incluant la taxe
+              </p>
             </div>
 
             {/* Couverture */}
@@ -396,7 +589,7 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
                 htmlFor="coverage"
                 className="block text-sm font-medium text-gray-700"
               >
-                Couverture (€) *
+                Couverture (TND) *
               </label>
               <input
                 type="number"
@@ -422,7 +615,7 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
                 htmlFor="deductible"
                 className="block text-sm font-medium text-gray-700"
               >
-                Franchise (€) *
+                Franchise (TND) *
               </label>
               <input
                 type="number"
@@ -507,10 +700,13 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({
                 <Calculator className="h-5 w-5 text-blue-600 mr-2" />
                 <div>
                   <p className="text-sm font-medium text-blue-800">
-                    Coût mensuel: {(formData.premium / 12).toFixed(2)}€
+                    Coût mensuel:{" "}
+                    {((formData.premiumIncludingTax || 0) / 12).toFixed(2)} TND
                   </p>
                   <p className="text-xs text-blue-600">
-                    Prime annuelle de {formData.premium}€ répartie sur 12 mois
+                    Prime annuelle TTC de{" "}
+                    {formData.premiumIncludingTax?.toFixed(2) || "0.00"} TND
+                    répartie sur 12 mois
                   </p>
                 </div>
               </div>

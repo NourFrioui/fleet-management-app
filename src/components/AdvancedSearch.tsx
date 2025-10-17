@@ -223,7 +223,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           },
           {
             id: "costRange",
-            label: "Coût (€)",
+            label: "Coût (TND)",
             type: "range",
           },
           {
@@ -276,7 +276,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           },
           {
             id: "premiumRange",
-            label: "Prime annuelle (€)",
+            label: "Prime annuelle (TND)",
             type: "range",
           },
         ];

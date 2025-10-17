@@ -377,7 +377,7 @@ const TechnicalInspectionPage: React.FC = () => {
                       {getResultText(inspection.result)}
                     </span>
                     <span className="text-sm font-medium text-gray-900">
-                      {inspection.cost}€
+                      {inspection.cost}TND
                     </span>
                     <Link
                       to={`/technical-inspection/${inspection.id}`}

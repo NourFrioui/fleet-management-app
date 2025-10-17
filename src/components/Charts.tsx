@@ -47,7 +47,7 @@ export const FuelConsumptionChart: React.FC<ChartProps> = ({
             <YAxis />
             <Tooltip
               formatter={(value: any, name: string) => [
-                name === "consommation" ? `${value}L/100km` : `${value}€`,
+                name === "consommation" ? `${value}L/100km` : `${value}TND`,
                 name === "consommation" ? "Consommation" : "Coût",
               ]}
             />
@@ -92,7 +92,7 @@ export const MaintenanceCostsChart: React.FC<ChartProps> = ({
             <YAxis />
             <Tooltip
               formatter={(value: any, name: string) => [
-                name === "coût" ? `${value}€` : `${value} interventions`,
+                name === "coût" ? `${value}TND` : `${value} interventions`,
                 name === "coût" ? "Coût total" : "Nombre d'interventions",
               ]}
             />
@@ -245,7 +245,7 @@ export const MonthlyCostsChart: React.FC<ChartProps> = ({ className = "" }) => {
             <YAxis />
             <Tooltip
               formatter={(value: any, name: string) => [
-                `${value}€`,
+                `${value}TND`,
                 name === "carburant"
                   ? "Carburant"
                   : name === "maintenance"

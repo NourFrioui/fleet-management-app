@@ -327,7 +327,7 @@ const OilChangePage: React.FC = () => {
                     </span>
                     {oilChange.cost && (
                       <span className="text-sm font-medium text-gray-900">
-                        {oilChange.cost}€
+                        {oilChange.cost}TND
                       </span>
                     )}
                     <Link

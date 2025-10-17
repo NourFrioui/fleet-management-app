@@ -85,7 +85,7 @@ const DashboardModern: React.FC = () => {
     },
     {
       title: "Coût Mensuel Carburant",
-      value: `${stats.monthlyFuelCost.toLocaleString()}€`,
+      value: `${stats.monthlyFuelCost.toLocaleString()}TND`,
       icon: DollarSign,
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50",
@@ -374,7 +374,7 @@ const DashboardModern: React.FC = () => {
                       Coût moyen/km
                     </span>
                     <span className="text-lg font-bold text-yellow-600">
-                      0.45€
+                      0.45TND
                     </span>
                   </div>
                 </div>

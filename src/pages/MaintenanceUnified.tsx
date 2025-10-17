@@ -475,7 +475,7 @@ const MaintenanceUnified: React.FC = () => {
                       </span>
                       {maintenance.cost && (
                         <span className="text-sm font-medium text-gray-900">
-                          {maintenance.cost}€
+                          {maintenance.cost}TND
                         </span>
                       )}
                       <Link
@@ -565,7 +565,7 @@ const MaintenanceUnified: React.FC = () => {
                       </span>
                       {oilChange.cost && (
                         <span className="text-sm font-medium text-gray-900">
-                          {oilChange.cost}€
+                          {oilChange.cost}TND
                         </span>
                       )}
                       <Link
@@ -666,7 +666,7 @@ const MaintenanceUnified: React.FC = () => {
                           : "Défavorable"}
                       </span>
                       <span className="text-sm font-medium text-gray-900">
-                        {inspection.cost}€
+                        {inspection.cost}TND
                       </span>
                       <Link
                         to={`/technical-inspection/${inspection.id}`}

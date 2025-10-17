@@ -213,7 +213,7 @@ const FuelDetails: React.FC = () => {
                     Coût Total
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {fuelRecord.cost.toFixed(2)} €
+                    {fuelRecord.cost.toFixed(2)} TND
                   </dd>
                 </dl>
               </div>
@@ -233,7 +233,7 @@ const FuelDetails: React.FC = () => {
                     Prix/Litre
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {getPricePerLiter().toFixed(2)} €
+                    {getPricePerLiter().toFixed(2)} TND
                   </dd>
                 </dl>
               </div>
@@ -344,14 +344,14 @@ const FuelDetails: React.FC = () => {
                 <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-500">Coût total</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {fuelRecord.cost.toFixed(2)}€
+                  {fuelRecord.cost.toFixed(2)}TND
                 </p>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-500">Prix/Litre</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {getPricePerLiter().toFixed(2)}€
+                  {getPricePerLiter().toFixed(2)}TND
                 </p>
               </div>
             </div>

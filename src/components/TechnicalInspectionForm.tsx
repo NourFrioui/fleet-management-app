@@ -296,7 +296,7 @@ const TechnicalInspectionForm: React.FC<TechnicalInspectionFormProps> = ({
                 htmlFor="cost"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Coût (€) *
+                Coût (TND) *
               </label>
               <input
                 type="number"
@@ -549,7 +549,7 @@ const TechnicalInspectionForm: React.FC<TechnicalInspectionFormProps> = ({
 
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Coût de rectification (€)
+                              Coût de rectification (TND)
                             </label>
                             <input
                               type="number"

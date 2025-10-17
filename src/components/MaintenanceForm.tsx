@@ -272,7 +272,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
                 htmlFor="cost"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Coût (€)
+                Coût (TND)
               </label>
               <input
                 type="number"
@@ -447,7 +447,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Prix unitaire (€) *
+                          Prix unitaire (TND) *
                         </label>
                         <input
                           type="number"
@@ -471,7 +471,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
                             Total
                           </label>
                           <div className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium">
-                            {(part.quantity * part.unitPrice).toFixed(2)}€
+                            {(part.quantity * part.unitPrice).toFixed(2)}TND
                           </div>
                         </div>
                       </div>

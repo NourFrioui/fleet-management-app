@@ -297,20 +297,48 @@ const InsuranceDetails: React.FC = () => {
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-500">
-                  Prime annuelle
+                  Prime annuelle TTC
                 </p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {insurance.premium.toLocaleString()}€
+                  {(
+                    insurance.premiumIncludingTax || insurance.premium
+                  ).toLocaleString()}{" "}
+                  TND
                 </p>
                 <p className="text-xs text-gray-500">
-                  {(insurance.premium / 12).toFixed(2)}€/mois
+                  {(
+                    (insurance.premiumIncludingTax || insurance.premium) / 12
+                  ).toFixed(2)}{" "}
+                  TND/mois
                 </p>
+                {insurance.premiumExcludingTax && (
+                  <div className="mt-2 text-xs text-gray-600 space-y-1">
+                    <p>
+                      HT: {insurance.premiumExcludingTax.toLocaleString()} TND
+                    </p>
+                    <p>
+                      TVA ({insurance.vatRate}%):{" "}
+                      {insurance.vatAmount?.toFixed(2)} TND
+                    </p>
+                    {insurance.fiscalStamp && insurance.fiscalStamp > 0 && (
+                      <p>
+                        Timbre fiscal: {insurance.fiscalStamp.toFixed(2)} TND
+                      </p>
+                    )}
+                    {insurance.otherTaxes && insurance.otherTaxes > 0 && (
+                      <p>Autres taxes: {insurance.otherTaxes.toFixed(2)} TND</p>
+                    )}
+                    <p className="font-medium">
+                      Total taxes: {insurance.totalTaxAmount?.toFixed(2)} TND
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-500">Couverture</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {insurance.coverage.toLocaleString()}€
+                  {insurance.coverage.toLocaleString()}TND
                 </p>
                 <p className="text-xs text-gray-500">Montant maximum</p>
               </div>
@@ -318,7 +346,7 @@ const InsuranceDetails: React.FC = () => {
                 <FileText className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-500">Franchise</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  {insurance.deductible.toLocaleString()}€
+                  {insurance.deductible.toLocaleString()}TND
                 </p>
                 <p className="text-xs text-gray-500">Montant non remboursé</p>
               </div>

@@ -224,7 +224,7 @@ const MaintenanceDetails: React.FC<MaintenanceDetailsProps> = ({
                           Coût
                         </dt>
                         <dd className="mt-1 text-sm text-gray-900">
-                          {maintenance.cost}€
+                          {maintenance.cost}TND
                         </dd>
                       </div>
                     )}
@@ -283,10 +283,10 @@ const MaintenanceDetails: React.FC<MaintenanceDetailsProps> = ({
                                 {part.quantity}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {part.unitPrice}€
+                                {part.unitPrice}TND
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {(part.quantity * part.unitPrice).toFixed(2)}€
+                                {(part.quantity * part.unitPrice).toFixed(2)}TND
                               </td>
                             </tr>
                           ))}

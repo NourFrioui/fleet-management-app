@@ -408,7 +408,14 @@ export interface Insurance {
   policyNumber: string;
   startDate: string;
   endDate: string;
-  premium: number;
+  premium: number; // Prix TTC (obsolète, gardé pour compatibilité)
+  premiumExcludingTax?: number; // Prix HT (hors toutes taxes)
+  vatRate?: number; // Taux TVA en % (19% en Tunisie)
+  vatAmount?: number; // Montant TVA
+  fiscalStamp?: number; // Timbre fiscal (1 TND en Tunisie)
+  otherTaxes?: number; // Autres taxes
+  totalTaxAmount?: number; // Total des taxes (TVA + Timbre + Autres)
+  premiumIncludingTax?: number; // Prix TTC (prix final)
   coverage: number;
   deductible: number;
   status: "active" | "expired" | "cancelled";
@@ -426,7 +433,14 @@ export interface InsuranceFormData {
   policyNumber: string;
   startDate: string;
   endDate: string;
-  premium: number;
+  premium: number; // Prix TTC (obsolète, gardé pour compatibilité)
+  premiumExcludingTax?: number; // Prix HT (hors toutes taxes)
+  vatRate?: number; // Taux TVA en % (19% en Tunisie)
+  vatAmount?: number; // Montant TVA
+  fiscalStamp?: number; // Timbre fiscal (1 TND en Tunisie)
+  otherTaxes?: number; // Autres taxes
+  totalTaxAmount?: number; // Total des taxes (TVA + Timbre + Autres)
+  premiumIncludingTax?: number; // Prix TTC (prix final)
   coverage: number;
   deductible: number;
   agentName?: string;

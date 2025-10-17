@@ -181,7 +181,7 @@ const OilChangeDetails: React.FC<OilChangeDetailsProps> = ({
                           Coût
                         </dt>
                         <dd className="mt-1 text-sm text-gray-900">
-                          {oilChange.cost}€
+                          {oilChange.cost}TND
                         </dd>
                       </div>
                     )}

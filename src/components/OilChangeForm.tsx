@@ -312,7 +312,7 @@ const OilChangeForm: React.FC<OilChangeFormProps> = ({
                 htmlFor="cost"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Coût (€)
+                Coût (TND)
               </label>
               <input
                 type="number"

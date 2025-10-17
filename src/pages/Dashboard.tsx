@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
     },
     {
       title: "Coût Carburant Mensuel",
-      value: `${stats.monthlyFuelCost.toLocaleString()} €`,
+      value: `${stats.monthlyFuelCost.toLocaleString()} TND`,
       icon: Fuel,
       color: "bg-red-500",
       link: "/fuel",

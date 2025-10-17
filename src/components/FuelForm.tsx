@@ -273,7 +273,7 @@ const FuelForm: React.FC<FuelFormProps> = ({
                 htmlFor="cost"
                 className="block text-sm font-medium text-gray-700"
               >
-                Coût (€) *
+                Coût (TND) *
               </label>
               <input
                 type="number"
@@ -387,7 +387,7 @@ const FuelForm: React.FC<FuelFormProps> = ({
                 <div>
                   <p className="text-sm font-medium text-blue-800">
                     Prix au litre:{" "}
-                    {(formData.cost / formData.quantity).toFixed(2)}€
+                    {(formData.cost / formData.quantity).toFixed(2)}TND
                   </p>
                   <p className="text-xs text-blue-600">
                     Calcul automatique basé sur la quantité et le coût
