@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   File,
   FileCheck,
+  X,
 } from "lucide-react";
 import type { FileAttachment, Vehicle } from "../types";
 
@@ -18,6 +19,12 @@ const VehicleFiles: React.FC = () => {
   const navigate = useNavigate();
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    category: "document",
+    description: "",
+    tags: "",
+  });
 
   // Mock data
   const mockVehicle: Vehicle = {
@@ -150,19 +157,54 @@ const VehicleFiles: React.FC = () => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
+    if (files && files.length > 0) {
       const filesArray = Array.from(files);
       setSelectedFiles(filesArray);
-      // Logique d'upload ici
-      console.log("Uploading files:", filesArray);
-      // Après upload, reset
-      setTimeout(() => {
-        setSelectedFiles([]);
-        event.target.value = "";
-      }, 2000);
+      setShowUploadModal(true);
+      event.target.value = "";
     }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (selectedFiles.length === 0) return;
+
+    try {
+      console.log("Upload des fichiers avec métadonnées:", {
+        files: selectedFiles,
+        category: uploadData.category,
+        description: uploadData.description,
+        tags: uploadData.tags.split(",").map((t) => t.trim()),
+      });
+
+      // TODO: Implémenter l'appel API réel
+      // const formData = new FormData();
+      // selectedFiles.forEach((file) => formData.append("files", file));
+      // formData.append("category", uploadData.category);
+      // formData.append("description", uploadData.description);
+      // formData.append("tags", uploadData.tags);
+      // await api.uploadVehicleFiles(vehicleId, formData);
+
+      // Simuler un délai d'upload
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      alert(`${selectedFiles.length} fichier(s) téléchargé(s) avec succès!`);
+
+      // Reset
+      setSelectedFiles([]);
+      setUploadData({ category: "document", description: "", tags: "" });
+      setShowUploadModal(false);
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error);
+      alert("Erreur lors de l'upload. Veuillez réessayer.");
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setSelectedFiles([]);
+    setUploadData({ category: "document", description: "", tags: "" });
+    setShowUploadModal(false);
   };
 
   const handleDelete = (id: string) => {
@@ -171,9 +213,32 @@ const VehicleFiles: React.FC = () => {
     }
   };
 
-  const handleDownload = (file: FileAttachment) => {
-    console.log("Download file:", file.fileName);
-    // Logique de téléchargement
+  const handleDownload = async (file: FileAttachment) => {
+    try {
+      // Méthode 1: Si le fichier est sur un serveur (URL réelle)
+      // Créer un lien temporaire et déclencher le téléchargement
+      const link = document.createElement("a");
+      link.href = file.fileUrl;
+      link.download = file.fileName;
+      link.target = "_blank";
+
+      // Ajouter au DOM, cliquer et retirer
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log("Téléchargement du fichier:", file.fileName);
+
+      // Si l'URL n'est pas accessible (fichier mock), afficher un message
+      // Dans un environnement de production, vous feriez un appel API:
+      // const response = await fetch(`/api/files/${file.id}/download`);
+      // const blob = await response.blob();
+      // const url = window.URL.createObjectURL(blob);
+      // link.href = url;
+    } catch (error) {
+      console.error("Erreur lors du téléchargement:", error);
+      alert("Erreur lors du téléchargement du fichier. Veuillez réessayer.");
+    }
   };
 
   const totalSize = filteredFiles.reduce((sum, file) => sum + file.fileSize, 0);
@@ -205,7 +270,7 @@ const VehicleFiles: React.FC = () => {
           <input
             type="file"
             multiple
-            onChange={handleFileUpload}
+            onChange={handleFileSelect}
             className="hidden"
             accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
           />
@@ -279,18 +344,121 @@ const VehicleFiles: React.FC = () => {
         </div>
       </div>
 
-      {/* Upload en cours */}
-      {selectedFiles.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center space-x-3">
-            <Upload className="h-5 w-5 text-blue-600 animate-bounce" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">
-                Upload en cours...
-              </p>
-              <p className="text-xs text-blue-700">
-                {selectedFiles.length} fichier(s) en cours de téléchargement
-              </p>
+      {/* Modal d'upload */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Télécharger des fichiers
+                </h3>
+                <button
+                  onClick={handleCancelUpload}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Liste des fichiers sélectionnés */}
+              <div className="mb-6">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Fichiers sélectionnés ({selectedFiles.length})
+                </p>
+                <div className="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto">
+                  {selectedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <File className="h-5 w-5 text-gray-400" />
+                        <span className="text-sm text-gray-900">
+                          {file.name}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {formatFileSize(file.size)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Formulaire de métadonnées */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Catégorie <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={uploadData.category}
+                    onChange={(e) =>
+                      setUploadData({ ...uploadData, category: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="document">Document</option>
+                    <option value="image">Image</option>
+                    <option value="contract">Contrat</option>
+                    <option value="invoice">Facture</option>
+                    <option value="report">Rapport</option>
+                    <option value="certificate">Certificat</option>
+                    <option value="other">Autre</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={uploadData.description}
+                    onChange={(e) =>
+                      setUploadData({
+                        ...uploadData,
+                        description: e.target.value,
+                      })
+                    }
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Description du fichier..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags (séparés par des virgules)
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadData.tags}
+                    onChange={(e) =>
+                      setUploadData({ ...uploadData, tags: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="ex: assurance, 2024, important"
+                  />
+                </div>
+              </div>
+
+              {/* Boutons d'action */}
+              <div className="flex items-center justify-end space-x-3 mt-6 pt-4 border-t">
+                <button
+                  onClick={handleCancelUpload}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleUploadSubmit}
+                  className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  <Upload className="h-5 w-5 mr-2" />
+                  Télécharger ({selectedFiles.length})
+                </button>
+              </div>
             </div>
           </div>
         </div>
