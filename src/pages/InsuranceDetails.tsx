@@ -293,65 +293,254 @@ const InsuranceDetails: React.FC = () => {
             <h2 className="text-lg font-medium text-gray-900 mb-4">
               Informations financières
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-500">
-                  Prime annuelle TTC
-                </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {(
-                    insurance.premiumIncludingTax || insurance.premium
-                  ).toLocaleString()}{" "}
-                  TND
-                </p>
-                <p className="text-xs text-gray-500">
-                  {(
-                    (insurance.premiumIncludingTax || insurance.premium) / 12
-                  ).toFixed(2)}{" "}
-                  TND/mois
-                </p>
-                {insurance.premiumExcludingTax && (
-                  <div className="mt-2 text-xs text-gray-600 space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Paiement mensuel */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200 p-6">
+                <div className="flex items-center mb-4">
+                  <Calendar className="h-6 w-6 text-blue-600 mr-2" />
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    Paiement Mensuel
+                  </h3>
+                </div>
+                {insurance.premiumExcludingTax ? (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <p className="text-sm text-gray-600 mb-1">
+                        Hors Taxes (HT)
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {(insurance.premiumExcludingTax / 12).toFixed(2)}{" "}
+                        <span className="text-lg">TND</span>
+                      </p>
+                    </div>
+                    <div className="bg-blue-600 rounded-lg p-4">
+                      <p className="text-sm text-blue-100 mb-1">
+                        Taxes Comprises (TTC)
+                      </p>
+                      <p className="text-3xl font-bold text-white">
+                        {(
+                          (insurance.premiumIncludingTax || insurance.premium) /
+                          12
+                        ).toFixed(2)}{" "}
+                        <span className="text-lg">TND</span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-3xl font-bold text-blue-600">
+                    {(insurance.premium / 12).toFixed(2)} TND
+                  </p>
+                )}
+              </div>
+
+              {/* Paiement annuel */}
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg border-2 border-indigo-200 p-6">
+                <div className="flex items-center mb-4">
+                  <DollarSign className="h-6 w-6 text-indigo-600 mr-2" />
+                  <h3 className="text-lg font-semibold text-indigo-900">
+                    Paiement Annuel
+                  </h3>
+                </div>
+                {insurance.premiumExcludingTax ? (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <p className="text-sm text-gray-600 mb-1">
+                        Hors Taxes (HT)
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {insurance.premiumExcludingTax.toLocaleString("fr-TN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        <span className="text-lg">TND</span>
+                      </p>
+                    </div>
+                    <div className="bg-indigo-600 rounded-lg p-4">
+                      <p className="text-sm text-indigo-100 mb-1">
+                        Taxes Comprises (TTC)
+                      </p>
+                      <p className="text-3xl font-bold text-white">
+                        {(
+                          insurance.premiumIncludingTax || insurance.premium
+                        ).toLocaleString("fr-TN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        <span className="text-lg">TND</span>
+                      </p>
+                      <p className="text-xs text-indigo-200 mt-2">
+                        Taxes: {insurance.totalTaxAmount?.toFixed(2)} TND
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-3xl font-bold text-indigo-600">
+                    {insurance.premium.toLocaleString()} TND
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Détail des prix et taxes */}
+          {insurance.premiumExcludingTax && (
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">
+                Détail des prix et taxes
+              </h2>
+              <div className="space-y-4">
+                {/* Prix HT */}
+                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                  <span className="text-sm font-medium text-gray-700">
+                    Prix Hors Taxes (HT)
+                  </span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {insurance.premiumExcludingTax.toLocaleString("fr-TN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    TND
+                  </span>
+                </div>
+
+                {/* TVA */}
+                <div className="bg-blue-50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-blue-900">
+                      TVA ({insurance.vatRate}%)
+                    </span>
+                    <span className="text-base font-semibold text-blue-900">
+                      {insurance.vatAmount?.toFixed(2)} TND
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    Taxe sur la Valeur Ajoutée
+                  </p>
+                </div>
+
+                {/* Timbre fiscal */}
+                {insurance.fiscalStamp && insurance.fiscalStamp > 0 && (
+                  <div className="bg-purple-50 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-purple-900">
+                        Timbre Fiscal
+                      </span>
+                      <span className="text-base font-semibold text-purple-900">
+                        {insurance.fiscalStamp.toFixed(2)} TND
+                      </span>
+                    </div>
+                    <p className="text-xs text-purple-700">
+                      Droit de timbre obligatoire
+                    </p>
+                  </div>
+                )}
+
+                {/* Autres taxes */}
+                {insurance.otherTaxes && insurance.otherTaxes > 0 && (
+                  <div className="bg-orange-50 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-orange-900">
+                        Autres Taxes
+                      </span>
+                      <span className="text-base font-semibold text-orange-900">
+                        {insurance.otherTaxes.toFixed(2)} TND
+                      </span>
+                    </div>
+                    <p className="text-xs text-orange-700">
+                      Taxes additionnelles
+                    </p>
+                  </div>
+                )}
+
+                {/* Total des taxes */}
+                <div className="flex justify-between items-center py-3 border-t border-b border-gray-300">
+                  <span className="text-sm font-medium text-gray-700">
+                    Total des Taxes
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">
+                    {insurance.totalTaxAmount?.toFixed(2)} TND
+                  </span>
+                </div>
+
+                {/* Prix TTC */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-2 border-green-200">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-sm font-medium text-green-900 block">
+                        Prix Total TTC
+                      </span>
+                      <span className="text-xs text-green-700">
+                        Toutes Taxes Comprises
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold text-green-900">
+                      {(
+                        insurance.premiumIncludingTax || insurance.premium
+                      ).toLocaleString("fr-TN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      TND
+                    </span>
+                  </div>
+                </div>
+
+                {/* Paiement mensuel */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">
+                      Paiement mensuel (indicatif)
+                    </span>
+                    <span className="text-lg font-semibold text-gray-900">
+                      {(
+                        (insurance.premiumIncludingTax || insurance.premium) /
+                        12
+                      ).toFixed(2)}{" "}
+                      TND/mois
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Prix annuel divisé par 12 mois
+                  </p>
+                </div>
+
+                {/* Récapitulatif du calcul */}
+                <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                  <h3 className="text-sm font-semibold text-yellow-900 mb-2">
+                    💡 Récapitulatif du calcul
+                  </h3>
+                  <div className="text-xs text-yellow-800 space-y-1">
                     <p>
-                      HT: {insurance.premiumExcludingTax.toLocaleString()} TND
+                      • Prix HT :{" "}
+                      {insurance.premiumExcludingTax.toLocaleString()} TND
                     </p>
                     <p>
-                      TVA ({insurance.vatRate}%):{" "}
+                      • + TVA ({insurance.vatRate}%) :{" "}
                       {insurance.vatAmount?.toFixed(2)} TND
                     </p>
                     {insurance.fiscalStamp && insurance.fiscalStamp > 0 && (
                       <p>
-                        Timbre fiscal: {insurance.fiscalStamp.toFixed(2)} TND
+                        • + Timbre fiscal : {insurance.fiscalStamp.toFixed(2)}{" "}
+                        TND
                       </p>
                     )}
                     {insurance.otherTaxes && insurance.otherTaxes > 0 && (
-                      <p>Autres taxes: {insurance.otherTaxes.toFixed(2)} TND</p>
+                      <p>
+                        • + Autres taxes : {insurance.otherTaxes.toFixed(2)} TND
+                      </p>
                     )}
-                    <p className="font-medium">
-                      Total taxes: {insurance.totalTaxAmount?.toFixed(2)} TND
+                    <p className="font-semibold pt-1 border-t border-yellow-300">
+                      = Total TTC :{" "}
+                      {(
+                        insurance.premiumIncludingTax || insurance.premium
+                      ).toFixed(2)}{" "}
+                      TND
                     </p>
                   </div>
-                )}
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-500">Couverture</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {insurance.coverage.toLocaleString()}TND
-                </p>
-                <p className="text-xs text-gray-500">Montant maximum</p>
-              </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <FileText className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-500">Franchise</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {insurance.deductible.toLocaleString()}TND
-                </p>
-                <p className="text-xs text-gray-500">Montant non remboursé</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Informations de contact */}
           {insurance.agentName && (

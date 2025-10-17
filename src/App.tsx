@@ -32,6 +32,11 @@ import Insurance from "./pages/Insurance";
 import InsuranceDetails from "./pages/InsuranceDetails";
 import InsuranceForm from "./components/InsuranceForm";
 import DriverDetails from "./pages/DriverDetails";
+import TireChangePage from "./pages/TireChangePage";
+import WashingPage from "./pages/WashingPage";
+import FuelStatistics from "./pages/FuelStatistics";
+import AlertsPage from "./pages/AlertsPage";
+import VehicleFiles from "./pages/VehicleFiles";
 
 const App: React.FC = () => {
   return (
@@ -67,6 +72,13 @@ const App: React.FC = () => {
                         element={<TechnicalInspectionPage />}
                       />
                       <Route path="/fuel" element={<FuelPage />} />
+                      <Route path="/tire-change" element={<TireChangePage />} />
+                      <Route path="/washing" element={<WashingPage />} />
+                      <Route
+                        path="/fuel-statistics"
+                        element={<FuelStatistics />}
+                      />
+                      <Route path="/alerts" element={<AlertsPage />} />
 
                       {/* Routes pour les formulaires (à implémenter) */}
                       <Route path="/vehicles/new" element={<VehicleForm />} />
@@ -77,6 +89,10 @@ const App: React.FC = () => {
                       <Route
                         path="/vehicles/:id/edit"
                         element={<VehicleForm isEdit={true} />}
+                      />
+                      <Route
+                        path="/vehicles/:vehicleId/files"
+                        element={<VehicleFiles />}
                       />
 
                       <Route path="/drivers/new" element={<DriverForm />} />

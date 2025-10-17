@@ -55,8 +55,8 @@ const Insurance: React.FC = () => {
             otherTaxes: 0,
             totalTaxAmount: 384.04,
             premiumIncludingTax: 2400.04,
-            coverage: 50000,
-            deductible: 500,
+            coverage: 80000, // Plafond adapté marché tunisien
+            deductible: 500, // Franchise standard Tunisie
             status: "active",
             agentName: "Mohamed Ben Ali",
             agentPhone: "+216 71 234 567",
@@ -80,8 +80,8 @@ const Insurance: React.FC = () => {
             otherTaxes: 0,
             totalTaxAmount: 256.36,
             premiumIncludingTax: 1600.36,
-            coverage: 30000,
-            deductible: 800,
+            coverage: 40000, // Au tiers - plafond tunisien
+            deductible: 300, // Franchise pour au tiers
             status: "expired",
             agentName: "Fatma Trabelsi",
             agentPhone: "+216 74 456 789",
@@ -105,8 +105,8 @@ const Insurance: React.FC = () => {
             otherTaxes: 0,
             totalTaxAmount: 479.8,
             premiumIncludingTax: 2999.8,
-            coverage: 75000,
-            deductible: 400,
+            coverage: 120000, // Commercial - plafond élevé
+            deductible: 700, // Franchise commerciale
             status: "active",
             agentName: "Ahmed Karray",
             agentPhone: "+216 73 789 123",

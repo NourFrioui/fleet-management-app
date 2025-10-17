@@ -17,6 +17,10 @@ import {
   ChevronRight,
   Droplets,
   ClipboardCheck,
+  Disc,
+  Sparkles,
+  BarChart3,
+  Bell,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -54,10 +58,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           href: "/technical-inspection",
           icon: ClipboardCheck,
         },
+        {
+          name: "Changement de Pneus",
+          href: "/tire-change",
+          icon: Disc,
+        },
+        {
+          name: "Lavage",
+          href: "/washing",
+          icon: Sparkles,
+        },
       ],
     },
     { name: "Carburant", href: "/fuel", icon: Fuel },
+    {
+      name: "Statistiques Carburant",
+      href: "/fuel-statistics",
+      icon: BarChart3,
+    },
     { name: "Assurances", href: "/insurance", icon: Shield },
+    { name: "Alertes & Rappels", href: "/alerts", icon: Bell },
   ];
 
   const isCurrentPath = (path: string) => {
@@ -70,7 +90,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
       location.pathname.startsWith("/maintenance") ||
       location.pathname.startsWith("/oil-change") ||
-      location.pathname.startsWith("/technical-inspection")
+      location.pathname.startsWith("/technical-inspection") ||
+      location.pathname.startsWith("/tire-change") ||
+      location.pathname.startsWith("/washing")
     );
   };
 

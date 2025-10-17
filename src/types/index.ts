@@ -456,3 +456,189 @@ export interface InsuranceFilters {
   dateFrom?: string;
   dateTo?: string;
 }
+
+// Types pour le changement de pneus
+export type TirePosition = "AVD" | "AVG" | "ARD" | "ARG"; // Avant Droite, Avant Gauche, Arrière Droite, Arrière Gauche
+
+export interface TireChange {
+  id: string;
+  vehicleId: string;
+  vehicle?: Vehicle;
+  position: TirePosition;
+  tireBrand: string;
+  tireModel: string;
+  tireSize: string;
+  mileage: number;
+  cost: number;
+  date: string;
+  serviceCenter?: string;
+  technician?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TireChangeFormData {
+  vehicleId: string;
+  position: TirePosition;
+  tireBrand: string;
+  tireModel: string;
+  tireSize: string;
+  mileage: number;
+  cost: number;
+  date: string;
+  serviceCenter?: string;
+  technician?: string;
+  notes?: string;
+}
+
+// Types pour le lavage
+export type WashingType = "exterior" | "interior" | "complete" | "express";
+
+export interface Washing {
+  id: string;
+  vehicleId: string;
+  vehicle?: Vehicle;
+  type: WashingType;
+  cost: number;
+  date: string;
+  location?: string;
+  mileage?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WashingFormData {
+  vehicleId: string;
+  type: WashingType;
+  cost: number;
+  date: string;
+  location?: string;
+  mileage?: number;
+  notes?: string;
+}
+
+// Types pour les statistiques de consommation
+export interface FuelConsumptionStats {
+  daily: {
+    date: string;
+    totalLiters: number;
+    totalCost: number;
+    averageConsumption: number; // L/100km
+    vehicleCount: number;
+  }[];
+  monthly: {
+    month: string;
+    totalLiters: number;
+    totalCost: number;
+    averageConsumption: number; // L/100km
+    vehicleCount: number;
+  }[];
+  byVehicle: {
+    vehicleId: string;
+    vehicleName: string;
+    totalLiters: number;
+    totalCost: number;
+    totalKilometers: number;
+    averageConsumption: number; // L/100km
+    efficiency: "excellent" | "good" | "average" | "poor";
+  }[];
+  byKilometrage: {
+    range: string; // "0-1000", "1000-5000", etc.
+    totalLiters: number;
+    totalCost: number;
+    averageConsumption: number;
+  }[];
+}
+
+// Types pour les alertes/rappels
+export type AlertType =
+  | "technical_inspection"
+  | "oil_change"
+  | "insurance"
+  | "maintenance"
+  | "tire_change"
+  | "license_expiry";
+export type AlertPriority = "high" | "medium" | "low";
+export type AlertStatus = "pending" | "sent" | "dismissed" | "completed";
+
+export interface Alert {
+  id: string;
+  type: AlertType;
+  title: string;
+  message: string;
+  relatedId: string; // ID de l'entité concernée (véhicule, assurance, etc.)
+  relatedType:
+    | "vehicle"
+    | "insurance"
+    | "maintenance"
+    | "oil_change"
+    | "technical_inspection"
+    | "driver";
+  vehicleId?: string;
+  vehicle?: Vehicle;
+  dueDate: string;
+  alertDate: string; // Date à laquelle l'alerte doit être envoyée
+  priority: AlertPriority;
+  status: AlertStatus;
+  daysBefore: number; // 7 ou 3 jours
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlertFormData {
+  type: AlertType;
+  title: string;
+  message: string;
+  relatedId: string;
+  relatedType:
+    | "vehicle"
+    | "insurance"
+    | "maintenance"
+    | "oil_change"
+    | "technical_inspection"
+    | "driver";
+  vehicleId?: string;
+  dueDate: string;
+  daysBefore: number;
+  priority: AlertPriority;
+}
+
+// Types pour les fichiers attachés
+export type FileCategory =
+  | "document"
+  | "image"
+  | "contract"
+  | "invoice"
+  | "report"
+  | "certificate"
+  | "other";
+
+export interface FileAttachment {
+  id: string;
+  vehicleId: string;
+  vehicle?: Vehicle;
+  fileName: string;
+  fileSize: number; // en bytes
+  fileType: string; // MIME type
+  fileUrl: string;
+  category: FileCategory;
+  description?: string;
+  uploadedBy?: string;
+  uploadDate: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FileAttachmentFormData {
+  vehicleId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  fileUrl: string;
+  category: FileCategory;
+  description?: string;
+  tags?: string[];
+}
