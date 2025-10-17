@@ -1,0 +1,130 @@
+# ⚠️ Ce fichier est un exemple - À renommer en deploy-frontend.yml et configurer les secrets
+# Configuration requise dans GitHub Settings → Secrets :
+# - VPS_HOST : Adresse IP de votre VPS OVH
+# - VPS_USER : Nom d'utilisateur SSH (ubuntu)
+# - VPS_SSH_KEY : Votre clé SSH privée complète
+# - VPS_FRONTEND_PATH : /var/www/fleet-frontend
+
+name: Deploy Frontend to OVH
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch: # Permet le déclenchement manuel depuis GitHub
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installer Node.js
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # 3. Installer les dépendances
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      # 4. Linter (optionnel)
+      - name: 🔍 Run linter
+        run: npm run lint || true
+
+      # 5. Tests (optionnel - décommenter si vous avez des tests)
+      # - name: 🧪 Run tests
+      #   run: npm test
+
+      # 6. Build de production
+      - name: 🔨 Build for production
+        env:
+          VITE_API_URL: https://api.votredomaine.tn/api/v1
+        run: npm run build
+
+      # 7. Afficher la taille du build
+      - name: 📊 Check build size
+        run: du -sh dist/
+
+      # 8. Backup et nettoyage sur le serveur
+      - name: 💾 Backup old version
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "🚀 Déploiement du frontend..."
+
+            # Créer un backup de l'ancien build
+            sudo cp -r ${{ secrets.VPS_FRONTEND_PATH }} ${{ secrets.VPS_FRONTEND_PATH }}-backup-$(date +%Y%m%d-%H%M%S) || true
+
+            # Nettoyer le dossier de destination
+            sudo rm -rf ${{ secrets.VPS_FRONTEND_PATH }}/*
+
+            echo "✅ Ancien build sauvegardé et dossier nettoyé"
+
+      # 9. Copier les fichiers via SCP
+      - name: 📤 Copy files to VPS
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "dist/*"
+          target: "/tmp/fleet-frontend-new"
+          strip_components: 1
+
+      # 10. Finaliser le déploiement
+      - name: ✅ Finalize deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "📦 Déplacement des fichiers..."
+            sudo mv /tmp/fleet-frontend-new/* ${{ secrets.VPS_FRONTEND_PATH }}/
+
+            echo "🔐 Configuration des permissions..."
+            sudo chown -R www-data:www-data ${{ secrets.VPS_FRONTEND_PATH }}
+            sudo chmod -R 755 ${{ secrets.VPS_FRONTEND_PATH }}
+
+            echo "🧹 Nettoyage..."
+            sudo rm -rf /tmp/fleet-frontend-new
+
+            echo "✅ Déploiement du frontend terminé avec succès!"
+
+            # Garder seulement les 5 derniers backups
+            cd $(dirname ${{ secrets.VPS_FRONTEND_PATH }})
+            ls -t fleet-frontend-backup-* 2>/dev/null | tail -n +6 | xargs -r sudo rm -rf
+
+      # 11. Test du déploiement
+      - name: 🧪 Health check
+        run: |
+          sleep 5
+          curl -f https://votredomaine.tn || exit 1
+          echo "✅ Frontend accessible!"
+
+      # 12. Notification de succès
+      - name: 🎉 Deployment success
+        if: success()
+        run: |
+          echo "✅ Déploiement réussi!"
+          echo "🌐 URL: https://votredomaine.tn"
+          echo "📅 Date: $(date)"
+          echo "🔨 Commit: ${{ github.sha }}"
+          echo "👤 Par: ${{ github.actor }}"
+
+      # 13. Notification d'échec
+      - name: ❌ Deployment failure
+        if: failure()
+        run: |
+          echo "❌ Le déploiement a échoué!"
+          echo "🔍 Vérifiez les logs ci-dessus"
