@@ -1,392 +1,317 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
+  Download,
   Edit,
   Trash2,
-  Eye,
+  DollarSign,
+  MapPin,
   Wrench,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Calendar,
 } from "lucide-react";
-import type { Maintenance, MaintenanceFilters } from "../types";
-import { MAINTENANCE_TYPES } from "../utils/vehicleConstants";
-import { mockMaintenances } from "../data/mockData";
+import { mockMaintenances, mockVehicles } from "../data/mockData";
 
 const MaintenancePage: React.FC = () => {
-  const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<MaintenanceFilters>({});
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterVehicle, setFilterVehicle] = useState<string>("");
 
-  useEffect(() => {
-    const fetchMaintenances = async () => {
-      try {
-        // En production, remplacer par : const response = await maintenanceService.getAll(filters);
-        setMaintenances(mockMaintenances);
-      } catch (error) {
-        console.error("Erreur lors du chargement des maintenances:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const getVehicleInfo = (vehicleId: string): string => {
+    const vehicle = mockVehicles.find((v) => v.id === vehicleId);
+    return vehicle
+      ? `${vehicle.brand} ${vehicle.model} - ${vehicle.plateNumber}`
+      : "Véhicule inconnu";
+  };
 
-    fetchMaintenances();
-  }, [filters]);
-
-  const filteredMaintenances = maintenances.filter((maintenance) => {
+  const filteredMaintenances = mockMaintenances.filter((maintenance) => {
     const matchesSearch =
+      searchTerm === "" ||
       maintenance.description
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       maintenance.technician
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      maintenance.vehicleId.toLowerCase().includes(searchTerm.toLowerCase());
+      getVehicleInfo(maintenance.vehicleId)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      !filters.status || maintenance.status === filters.status;
-    const matchesType = !filters.type || maintenance.type === filters.type;
-    const matchesVehicle =
-      !filters.vehicleId || maintenance.vehicleId === filters.vehicleId;
+      filterStatus === "" || maintenance.status === filterStatus;
 
-    return matchesSearch && matchesStatus && matchesType && matchesVehicle;
+    const matchesVehicle =
+      filterVehicle === "" || maintenance.vehicleId === filterVehicle;
+
+    return matchesSearch && matchesStatus && matchesVehicle;
   });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "in_progress":
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case "scheduled":
-        return <Calendar className="h-5 w-5 text-yellow-500" />;
-      case "cancelled":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
+  const totalCost = filteredMaintenances.reduce(
+    (sum, m) => sum + (m.cost || 0),
+    0
+  );
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Terminée";
-      case "in_progress":
-        return "En cours";
-      case "scheduled":
-        return "Programmée";
-      case "cancelled":
-        return "Annulée";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in_progress":
-        return "bg-blue-100 text-blue-800";
-      case "scheduled":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getTypeText = (type: string) => {
-    const typeData = MAINTENANCE_TYPES.find((t) => t.value === type);
-    return typeData ? typeData.label : type;
-  };
-
-  const getTypeColor = (type: string) => {
-    const typeData = MAINTENANCE_TYPES.find((t) => t.value === type);
-    return typeData
-      ? `bg-${typeData.color}-100 text-${typeData.color}-800`
-      : "bg-gray-100 text-gray-800";
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cette maintenance ?")
     ) {
-      try {
-        // await maintenanceService.delete(id);
-        setMaintenances(maintenances.filter((m) => m.id !== id));
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-      }
+      console.log("Delete maintenance:", id);
     }
   };
 
-  const handleMarkCompleted = async (id: string) => {
-    if (window.confirm("Marquer cette maintenance comme terminée ?")) {
-      try {
-        const completedDate = new Date().toISOString().split("T")[0];
-        // await maintenanceService.markCompleted(id, completedDate);
-        setMaintenances(
-          maintenances.map((m) =>
-            m.id === id ? { ...m, status: "completed", completedDate } : m
-          )
-        );
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour:", error);
-      }
-    }
+  const handleExport = () => {
+    console.log("Export maintenances data");
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="sm:flex sm:items-center sm:justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Maintenance</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Maintenance Générale
+          </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Gestion et suivi des maintenances des véhicules
+            Gérez et suivez toutes les maintenances de votre flotte
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <Link
-            to="/maintenance/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle maintenance
-          </Link>
+        <button
+          onClick={() => navigate("/maintenance/new")}
+          className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nouvelle maintenance
+        </button>
+      </div>
+
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Maintenances
+              </p>
+              <p className="text-2xl font-bold text-gray-900">
+                {filteredMaintenances.length}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-full">
+              <Wrench className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Coût Total</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalCost.toFixed(2)} TND
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-full">
+              <DollarSign className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Coût Moyen</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {filteredMaintenances.length > 0
+                  ? (totalCost / filteredMaintenances.length).toFixed(2)
+                  : "0.00"}{" "}
+                TND
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <DollarSign className="h-6 w-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Véhicules</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {new Set(filteredMaintenances.map((m) => m.vehicleId)).size}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-full">
+              <MapPin className="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Filtres et recherche */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          {/* Recherche */}
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="search"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Rechercher
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                placeholder="Description, technicien, véhicule..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
           </div>
 
-          {/* Filtre statut */}
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Statut
-            </label>
-            <select
-              id="status"
-              name="status"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              value={filters.status || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value || undefined })
-              }
-            >
-              <option value="">Tous les statuts</option>
-              <option value="scheduled">Programmée</option>
-              <option value="in_progress">En cours</option>
-              <option value="completed">Terminée</option>
-              <option value="cancelled">Annulée</option>
-            </select>
-          </div>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Tous les statuts</option>
+            <option value="scheduled">Programmée</option>
+            <option value="in_progress">En cours</option>
+            <option value="completed">Terminée</option>
+            <option value="cancelled">Annulée</option>
+          </select>
 
-          {/* Filtre type */}
-          <div>
-            <label
-              htmlFor="type"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Type
-            </label>
-            <select
-              id="type"
-              name="type"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              value={filters.type || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, type: e.target.value || undefined })
-              }
-            >
-              <option value="">Tous les types</option>
-              {MAINTENANCE_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={filterVehicle}
+            onChange={(e) => setFilterVehicle(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Tous les véhicules</option>
+            {mockVehicles.map((vehicle) => (
+              <option key={vehicle.id} value={vehicle.id}>
+                {vehicle.brand} {vehicle.model} - {vehicle.plateNumber}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleExport}
+            className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <Download className="h-5 w-5 mr-2" />
+            Exporter
+          </button>
         </div>
       </div>
 
       {/* Liste des maintenances */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {filteredMaintenances.map((maintenance) => (
-            <li key={maintenance.id}>
-              <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="bg-primary-600 p-2 rounded-full">
-                        <Wrench className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="flex items-center">
-                        <p className="text-sm font-medium text-primary-600 truncate">
-                          {maintenance.description}
-                        </p>
-                        <div className="ml-2 flex items-center">
-                          {getStatusIcon(maintenance.status)}
-                        </div>
-                      </div>
-                      <div className="mt-1 flex items-center text-sm text-gray-500 space-x-4">
-                        <span>Véhicule: {maintenance.vehicleId}</span>
-                        <span>•</span>
-                        <span>Technicien: {maintenance.technician}</span>
-                        <span>•</span>
-                        <span>
-                          Kilométrage: {maintenance.mileage.toLocaleString()} km
-                        </span>
-                      </div>
-                      <div className="mt-1 flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>
-                          Programmée le:{" "}
-                          {new Date(
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Véhicule
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Description
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Kilométrage
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Coût
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredMaintenances.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center">
+                    <p className="text-gray-500">Aucune maintenance trouvée</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredMaintenances.map((maintenance) => (
+                  <tr key={maintenance.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {maintenance.completedDate
+                        ? new Date(
+                            maintenance.completedDate
+                          ).toLocaleDateString("fr-TN")
+                        : new Date(
                             maintenance.scheduledDate
-                          ).toLocaleDateString()}
-                        </span>
-                        {maintenance.completedDate && (
-                          <>
-                            <span className="mx-2">•</span>
-                            <span>
-                              Terminée le:{" "}
-                              {new Date(
-                                maintenance.completedDate
-                              ).toLocaleDateString()}
-                            </span>
-                          </>
-                        )}
+                          ).toLocaleDateString("fr-TN")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {getVehicleInfo(maintenance.vehicleId)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                      {maintenance.type.replace("_", " ")}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-xs truncate">
+                        {maintenance.description}
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                        maintenance.type
-                      )}`}
-                    >
-                      {getTypeText(maintenance.type)}
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        maintenance.status
-                      )}`}
-                    >
-                      {getStatusText(maintenance.status)}
-                    </span>
-                    {maintenance.cost && (
-                      <span className="text-sm font-medium text-gray-900">
-                        {maintenance.cost}TND
-                      </span>
-                    )}
-                    <Link
-                      to={`/maintenance/${maintenance.id}`}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Eye className="h-5 w-5" />
-                    </Link>
-                    <Link
-                      to={`/maintenance/${maintenance.id}/edit`}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Edit className="h-5 w-5" />
-                    </Link>
-                    {maintenance.status === "scheduled" && (
-                      <button
-                        onClick={() => handleMarkCompleted(maintenance.id)}
-                        className="text-gray-400 hover:text-green-600"
-                        title="Marquer comme terminée"
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {maintenance.mileage.toLocaleString()} km
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {maintenance.cost ? maintenance.cost.toFixed(2) : "0.00"}{" "}
+                      TND
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          maintenance.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : maintenance.status === "in_progress"
+                            ? "bg-blue-100 text-blue-800"
+                            : maintenance.status === "scheduled"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
                       >
-                        <CheckCircle className="h-5 w-5" />
+                        {maintenance.status === "completed"
+                          ? "Terminée"
+                          : maintenance.status === "in_progress"
+                          ? "En cours"
+                          : maintenance.status === "scheduled"
+                          ? "Programmée"
+                          : "Annulée"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() =>
+                          navigate(`/maintenance/${maintenance.id}`)
+                        }
+                        className="text-primary-600 hover:text-primary-900 mr-3"
+                        title="Voir détails"
+                      >
+                        <Edit className="h-5 w-5" />
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(maintenance.id)}
-                      className="text-gray-400 hover:text-red-600"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-                {maintenance.notes && (
-                  <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                    <strong>Notes:</strong> {maintenance.notes}
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {filteredMaintenances.length === 0 && (
-          <div className="text-center py-12">
-            <Wrench className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              Aucune maintenance trouvée
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || Object.values(filters).some((f) => f)
-                ? "Essayez de modifier vos critères de recherche."
-                : "Commencez par ajouter une nouvelle maintenance."}
-            </p>
-            {!searchTerm && !Object.values(filters).some((f) => f) && (
-              <div className="mt-6">
-                <Link
-                  to="/maintenance/new"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle maintenance
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+                      <button
+                        onClick={() => handleDelete(maintenance.id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

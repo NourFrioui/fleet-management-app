@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import type { WashingFormData, Vehicle, WashingType } from "../types";
 
@@ -9,7 +9,6 @@ interface WashingFormProps {
 
 const WashingForm: React.FC<WashingFormProps> = ({ isEdit = false }) => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
 
   // Mock vehicles
   const mockVehicles: Vehicle[] = [
@@ -221,52 +220,31 @@ const WashingForm: React.FC<WashingFormProps> = ({ isEdit = false }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Coût */}
-            <div>
-              <label
-                htmlFor="cost"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Coût (TND) *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                id="cost"
-                name="cost"
-                value={formData.cost || ""}
-                onChange={handleInputChange}
-                placeholder="25.00"
-                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                  errors.cost
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:border-primary-500 focus:ring-primary-500"
-                }`}
-              />
-              {errors.cost && (
-                <p className="mt-1 text-sm text-red-600">{errors.cost}</p>
-              )}
-            </div>
-
-            {/* Kilométrage */}
-            <div>
-              <label
-                htmlFor="mileage"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Kilométrage (optionnel)
-              </label>
-              <input
-                type="number"
-                id="mileage"
-                name="mileage"
-                value={formData.mileage || ""}
-                onChange={handleInputChange}
-                placeholder="48500"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-              />
-            </div>
+          {/* Coût */}
+          <div>
+            <label
+              htmlFor="cost"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Coût (TND) *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="cost"
+              name="cost"
+              value={formData.cost || ""}
+              onChange={handleInputChange}
+              placeholder="25.00"
+              className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+                errors.cost
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+              }`}
+            />
+            {errors.cost && (
+              <p className="mt-1 text-sm text-red-600">{errors.cost}</p>
+            )}
           </div>
 
           {/* Lieu */}

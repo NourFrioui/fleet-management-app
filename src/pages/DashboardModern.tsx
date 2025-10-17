@@ -10,6 +10,8 @@ import {
   Eye,
   BarChart3,
   PieChart,
+  Fuel,
+  TrendingUp,
 } from "lucide-react";
 import type { DashboardStats } from "../types";
 import { mockDashboardStats } from "../data/mockData";
@@ -323,6 +325,56 @@ const DashboardModern: React.FC = () => {
                       Performance optimale de la flotte
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Statistiques de Carburant */}
+            <div className="card card-hover p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Statistiques de Carburant
+                </h3>
+                <Link
+                  to="/fuel-statistics"
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Voir détails →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <Fuel className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Coût Mensuel
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700 mt-1">
+                    {stats.monthlyFuelCost.toLocaleString()} TND
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                  <p className="text-sm font-medium text-green-900">
+                    Consommation Moy.
+                  </p>
+                  <p className="text-2xl font-bold text-green-700 mt-1">
+                    {stats.averageFuelConsumption} L/100km
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <p className="text-sm font-medium text-purple-900">
+                    Coût/Litre Moy.
+                  </p>
+                  <p className="text-2xl font-bold text-purple-700 mt-1">
+                    2.10 TND
+                  </p>
                 </div>
               </div>
             </div>

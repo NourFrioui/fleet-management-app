@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import type { TireChangeFormData, Vehicle, TirePosition } from "../types";
 
@@ -9,7 +9,6 @@ interface TireChangeFormProps {
 
 const TireChangeForm: React.FC<TireChangeFormProps> = ({ isEdit = false }) => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
 
   // Mock vehicles
   const mockVehicles: Vehicle[] = [

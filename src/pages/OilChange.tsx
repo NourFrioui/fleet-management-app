@@ -1,398 +1,317 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
+  Download,
   Edit,
   Trash2,
-  Eye,
+  DollarSign,
+  MapPin,
   Droplets,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Calendar,
 } from "lucide-react";
-import type { OilChange, OilChangeFilters } from "../types";
-import { OIL_TYPES } from "../utils/vehicleConstants";
-import { mockOilChanges } from "../data/mockData";
+import { mockOilChanges, mockVehicles } from "../data/mockData";
 
 const OilChangePage: React.FC = () => {
-  const [oilChanges, setOilChanges] = useState<OilChange[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<OilChangeFilters>({});
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterVehicle, setFilterVehicle] = useState<string>("");
 
-  useEffect(() => {
-    const fetchOilChanges = async () => {
-      try {
-        // En production, remplacer par : const response = await oilChangeService.getAll(filters);
-        setOilChanges(mockOilChanges);
-      } catch (error) {
-        console.error("Erreur lors du chargement des vidanges:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const getVehicleInfo = (vehicleId: string): string => {
+    const vehicle = mockVehicles.find((v) => v.id === vehicleId);
+    return vehicle
+      ? `${vehicle.brand} ${vehicle.model} - ${vehicle.plateNumber}`
+      : "Véhicule inconnu";
+  };
 
-    fetchOilChanges();
-  }, [filters]);
-
-  const filteredOilChanges = oilChanges.filter((oilChange) => {
+  const filteredOilChanges = mockOilChanges.filter((oilChange) => {
     const matchesSearch =
-      oilChange.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      searchTerm === "" ||
+      oilChange.oilBrand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       oilChange.technician?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      oilChange.vehicleId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      oilChange.oilBrand?.toLowerCase().includes(searchTerm.toLowerCase());
+      getVehicleInfo(oilChange.vehicleId)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      !filters.status || oilChange.status === filters.status;
-    const matchesOilType =
-      !filters.oilType || oilChange.oilType === filters.oilType;
-    const matchesVehicle =
-      !filters.vehicleId || oilChange.vehicleId === filters.vehicleId;
+      filterStatus === "" || oilChange.status === filterStatus;
 
-    return matchesSearch && matchesStatus && matchesOilType && matchesVehicle;
+    const matchesVehicle =
+      filterVehicle === "" || oilChange.vehicleId === filterVehicle;
+
+    return matchesSearch && matchesStatus && matchesVehicle;
   });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "in_progress":
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case "scheduled":
-        return <Calendar className="h-5 w-5 text-yellow-500" />;
-      case "cancelled":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
+  const totalCost = filteredOilChanges.reduce(
+    (sum, oc) => sum + (oc.cost || 0),
+    0
+  );
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Terminée";
-      case "in_progress":
-        return "En cours";
-      case "scheduled":
-        return "Programmée";
-      case "cancelled":
-        return "Annulée";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in_progress":
-        return "bg-blue-100 text-blue-800";
-      case "scheduled":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getOilTypeText = (oilType: string) => {
-    const oilTypeData = OIL_TYPES.find((type) => type.value === oilType);
-    return oilTypeData ? oilTypeData.label : oilType;
-  };
-
-  const getOilTypeColor = (oilType: string) => {
-    const oilTypeData = OIL_TYPES.find((type) => type.value === oilType);
-    return oilTypeData
-      ? `bg-${oilTypeData.color}-100 text-${oilTypeData.color}-800`
-      : "bg-gray-100 text-gray-800";
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette vidange ?")) {
-      try {
-        // await oilChangeService.delete(id);
-        setOilChanges(oilChanges.filter((oc) => oc.id !== id));
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-      }
+      console.log("Delete oil change:", id);
     }
   };
 
-  const handleMarkCompleted = async (id: string) => {
-    if (window.confirm("Marquer cette vidange comme terminée ?")) {
-      try {
-        const completedDate = new Date().toISOString().split("T")[0];
-        // await oilChangeService.markCompleted(id, completedDate);
-        setOilChanges(
-          oilChanges.map((oc) =>
-            oc.id === id ? { ...oc, status: "completed", completedDate } : oc
-          )
-        );
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour:", error);
-      }
-    }
+  const handleExport = () => {
+    console.log("Export oil changes data");
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="sm:flex sm:items-center sm:justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vidanges</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Vidange</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Gestion et suivi des vidanges des véhicules
+            Gérez et suivez toutes les vidanges de votre flotte
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <Link
-            to="/oil-change/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle vidange
-          </Link>
+        <button
+          onClick={() => navigate("/oil-change/new")}
+          className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nouvelle vidange
+        </button>
+      </div>
+
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Total Vidanges
+              </p>
+              <p className="text-2xl font-bold text-gray-900">
+                {filteredOilChanges.length}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-full">
+              <Droplets className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Coût Total</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalCost.toFixed(2)} TND
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-full">
+              <DollarSign className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Coût Moyen</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {filteredOilChanges.length > 0
+                  ? (totalCost / filteredOilChanges.length).toFixed(2)
+                  : "0.00"}{" "}
+                TND
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <DollarSign className="h-6 w-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Véhicules</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {new Set(filteredOilChanges.map((oc) => oc.vehicleId)).size}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-full">
+              <MapPin className="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Filtres et recherche */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          {/* Recherche */}
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="search"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Rechercher
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                placeholder="Notes, technicien, véhicule, marque..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
           </div>
 
-          {/* Filtre statut */}
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Statut
-            </label>
-            <select
-              id="status"
-              name="status"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              value={filters.status || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value || undefined })
-              }
-            >
-              <option value="">Tous les statuts</option>
-              <option value="scheduled">Programmée</option>
-              <option value="in_progress">En cours</option>
-              <option value="completed">Terminée</option>
-              <option value="cancelled">Annulée</option>
-            </select>
-          </div>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Tous les statuts</option>
+            <option value="scheduled">Programmée</option>
+            <option value="in_progress">En cours</option>
+            <option value="completed">Terminée</option>
+            <option value="cancelled">Annulée</option>
+          </select>
 
-          {/* Filtre type d'huile */}
-          <div>
-            <label
-              htmlFor="oilType"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Type d'huile
-            </label>
-            <select
-              id="oilType"
-              name="oilType"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              value={filters.oilType || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, oilType: e.target.value || undefined })
-              }
-            >
-              <option value="">Tous les types</option>
-              {OIL_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={filterVehicle}
+            onChange={(e) => setFilterVehicle(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Tous les véhicules</option>
+            {mockVehicles.map((vehicle) => (
+              <option key={vehicle.id} value={vehicle.id}>
+                {vehicle.brand} {vehicle.model} - {vehicle.plateNumber}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleExport}
+            className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <Download className="h-5 w-5 mr-2" />
+            Exporter
+          </button>
         </div>
       </div>
 
       {/* Liste des vidanges */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {filteredOilChanges.map((oilChange) => (
-            <li key={oilChange.id}>
-              <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="bg-primary-600 p-2 rounded-full">
-                        <Droplets className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="flex items-center">
-                        <p className="text-sm font-medium text-primary-600 truncate">
-                          Vidange - Véhicule {oilChange.vehicleId}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Véhicule
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type d'huile
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Quantité
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Kilométrage
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Coût
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Centre
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredOilChanges.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-12 text-center">
+                    <p className="text-gray-500">Aucune vidange trouvée</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredOilChanges.map((oilChange) => (
+                  <tr key={oilChange.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {oilChange.completedDate
+                        ? new Date(oilChange.completedDate).toLocaleDateString(
+                            "fr-TN"
+                          )
+                        : new Date(oilChange.scheduledDate).toLocaleDateString(
+                            "fr-TN"
+                          )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {getVehicleInfo(oilChange.vehicleId)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div>
+                        <p className="font-medium">
+                          {oilChange.oilBrand || "-"}
                         </p>
-                        <div className="ml-2 flex items-center">
-                          {getStatusIcon(oilChange.status)}
-                        </div>
+                        <p className="text-gray-500 capitalize">
+                          {oilChange.oilType}
+                        </p>
                       </div>
-                      <div className="mt-1 flex items-center text-sm text-gray-500 space-x-4">
-                        <span>
-                          Kilométrage: {oilChange.mileage.toLocaleString()} km
-                        </span>
-                        <span>•</span>
-                        <span>Quantité: {oilChange.oilQuantity}L</span>
-                        <span>•</span>
-                        <span>Technicien: {oilChange.technician}</span>
-                      </div>
-                      <div className="mt-1 flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>
-                          Programmée le:{" "}
-                          {new Date(
-                            oilChange.scheduledDate
-                          ).toLocaleDateString()}
-                        </span>
-                        {oilChange.completedDate && (
-                          <>
-                            <span className="mx-2">•</span>
-                            <span>
-                              Terminée le:{" "}
-                              {new Date(
-                                oilChange.completedDate
-                              ).toLocaleDateString()}
-                            </span>
-                          </>
-                        )}
-                        {oilChange.nextOilChangeMileage && (
-                          <>
-                            <span className="mx-2">•</span>
-                            <span>
-                              Prochaine:{" "}
-                              {oilChange.nextOilChangeMileage.toLocaleString()}{" "}
-                              km
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOilTypeColor(
-                        oilChange.oilType
-                      )}`}
-                    >
-                      {getOilTypeText(oilChange.oilType)}
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        oilChange.status
-                      )}`}
-                    >
-                      {getStatusText(oilChange.status)}
-                    </span>
-                    {oilChange.cost && (
-                      <span className="text-sm font-medium text-gray-900">
-                        {oilChange.cost}TND
-                      </span>
-                    )}
-                    <Link
-                      to={`/oil-change/${oilChange.id}`}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Eye className="h-5 w-5" />
-                    </Link>
-                    <Link
-                      to={`/oil-change/${oilChange.id}/edit`}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Edit className="h-5 w-5" />
-                    </Link>
-                    {oilChange.status === "scheduled" && (
-                      <button
-                        onClick={() => handleMarkCompleted(oilChange.id)}
-                        className="text-gray-400 hover:text-green-600"
-                        title="Marquer comme terminée"
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {oilChange.oilQuantity} L
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {oilChange.mileage.toLocaleString()} km
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {oilChange.cost?.toFixed(2) || "0.00"} TND
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {oilChange.serviceCenter || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          oilChange.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : oilChange.status === "in_progress"
+                            ? "bg-blue-100 text-blue-800"
+                            : oilChange.status === "scheduled"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
                       >
-                        <CheckCircle className="h-5 w-5" />
+                        {oilChange.status === "completed"
+                          ? "Terminée"
+                          : oilChange.status === "in_progress"
+                          ? "En cours"
+                          : oilChange.status === "scheduled"
+                          ? "Programmée"
+                          : "Annulée"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => navigate(`/oil-change/${oilChange.id}`)}
+                        className="text-primary-600 hover:text-primary-900 mr-3"
+                        title="Voir détails"
+                      >
+                        <Edit className="h-5 w-5" />
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(oilChange.id)}
-                      className="text-gray-400 hover:text-red-600"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-                {oilChange.notes && (
-                  <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                    <strong>Notes:</strong> {oilChange.notes}
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {filteredOilChanges.length === 0 && (
-          <div className="text-center py-12">
-            <Droplets className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              Aucune vidange trouvée
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || Object.values(filters).some((f) => f)
-                ? "Essayez de modifier vos critères de recherche."
-                : "Commencez par ajouter une nouvelle vidange."}
-            </p>
-            {!searchTerm && !Object.values(filters).some((f) => f) && (
-              <div className="mt-6">
-                <Link
-                  to="/oil-change/new"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle vidange
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+                      <button
+                        onClick={() => handleDelete(oilChange.id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
