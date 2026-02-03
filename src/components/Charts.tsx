@@ -46,7 +46,7 @@ export const FuelConsumptionChart: React.FC<ChartProps> = ({
             <XAxis dataKey="month" />
             <YAxis />
             <Tooltip
-              formatter={(value: any, name: string) => [
+              formatter={(value: number, name: string) => [
                 name === "consommation" ? `${value}L/100km` : `${value}TND`,
                 name === "consommation" ? "Consommation" : "Coût",
               ]}
@@ -91,7 +91,7 @@ export const MaintenanceCostsChart: React.FC<ChartProps> = ({
             <XAxis dataKey="month" />
             <YAxis />
             <Tooltip
-              formatter={(value: any, name: string) => [
+              formatter={(value: number, name: string) => [
                 name === "coût" ? `${value}TND` : `${value} interventions`,
                 name === "coût" ? "Coût total" : "Nombre d'interventions",
               ]}
@@ -121,11 +121,18 @@ export const VehicleTypeChart: React.FC<ChartProps> = ({ className = "" }) => {
     { name: "Vans", value: 2, color: "#f59e0b" },
   ];
 
+  const totalVehicles = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className={`bg-white shadow rounded-lg p-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Répartition par type
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Répartition par type
+        </h3>
+        <div className="text-sm text-gray-500">
+          Total: {totalVehicles} véhicules
+        </div>
+      </div>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -143,7 +150,19 @@ export const VehicleTypeChart: React.FC<ChartProps> = ({ className = "" }) => {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: any) => [`${value} véhicules`, "Quantité"]}
+              formatter={(value: number) => [
+                `${value} véhicules (${((value / totalVehicles) * 100).toFixed(
+                  1
+                )}%)`,
+                "Quantité",
+              ]}
+              labelStyle={{ color: "#374151" }}
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
             />
             <Legend />
           </PieChart>
@@ -158,28 +177,88 @@ export const VehicleStatusChart: React.FC<ChartProps> = ({
   className = "",
 }) => {
   const data = [
-    { status: "Actifs", value: 4, color: "#10b981" },
-    { status: "Maintenance", value: 1, color: "#f59e0b" },
-    { status: "Inactifs", value: 1, color: "#ef4444" },
+    { status: "Actifs", value: 4, color: "#10b981", percentage: 66.7 },
+    { status: "Maintenance", value: 1, color: "#f59e0b", percentage: 16.7 },
+    { status: "Inactifs", value: 1, color: "#ef4444", percentage: 16.7 },
   ];
+
+  const totalVehicles = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <div className={`bg-white shadow rounded-lg p-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Statut des véhicules
-      </h3>
-      <div className="h-64">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Statut des véhicules
+        </h3>
+        <div className="text-sm text-gray-500">
+          Total: {totalVehicles} véhicules
+        </div>
+      </div>
+
+      {/* Graphique en barres horizontales */}
+      <div className="h-64 mb-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="horizontal">
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="status" type="category" width={80} />
-            <Tooltip
-              formatter={(value: any) => [`${value} véhicules`, "Quantité"]}
+          <BarChart
+            data={data}
+            layout="horizontal"
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis
+              type="number"
+              domain={[0, "dataMax"]}
+              tick={{ fontSize: 12 }}
+              tickFormatter={(value) => `${value}`}
             />
-            <Bar dataKey="value" fill="#3b82f6" />
+            <YAxis
+              dataKey="status"
+              type="category"
+              width={90}
+              tick={{ fontSize: 12 }}
+            />
+            <Tooltip
+              formatter={(value: number) => [`${value} véhicules`, "Quantité"]}
+              labelStyle={{ color: "#374151" }}
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Légende détaillée */}
+      <div className="grid grid-cols-1 gap-3">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></div>
+              <span className="text-sm font-medium text-gray-700">
+                {item.status}
+              </span>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">
+                {item.value} véhicules
+              </div>
+              <div className="text-xs text-gray-500">{item.percentage}%</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -244,7 +323,7 @@ export const MonthlyCostsChart: React.FC<ChartProps> = ({ className = "" }) => {
             <XAxis dataKey="month" />
             <YAxis />
             <Tooltip
-              formatter={(value: any, name: string) => [
+              formatter={(value: number, name: string) => [
                 `${value}TND`,
                 name === "carburant"
                   ? "Carburant"
@@ -307,7 +386,7 @@ export const DriverPerformanceChart: React.FC<ChartProps> = ({
             <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
             <YAxis />
             <Tooltip
-              formatter={(value: any, name: string) => [
+              formatter={(value: number, name: string) => [
                 name === "kilomètres"
                   ? `${value.toLocaleString()} km`
                   : name === "consommation"
@@ -338,33 +417,205 @@ export const DriverPerformanceChart: React.FC<ChartProps> = ({
 // Graphique des alertes et notifications
 export const AlertsChart: React.FC<ChartProps> = ({ className = "" }) => {
   const data = [
-    { type: "Maintenances à venir", count: 4, color: "#f59e0b" },
-    { type: "Assurances expirant", count: 2, color: "#ef4444" },
-    { type: "Permis expirant", count: 1, color: "#f59e0b" },
-    { type: "Véhicules en panne", count: 0, color: "#ef4444" },
+    {
+      type: "Maintenances à venir",
+      count: 4,
+      color: "#f59e0b",
+      priority: "Moyenne",
+    },
+    {
+      type: "Assurances expirant",
+      count: 2,
+      color: "#ef4444",
+      priority: "Haute",
+    },
+    {
+      type: "Permis expirant",
+      count: 1,
+      color: "#f59e0b",
+      priority: "Moyenne",
+    },
+    {
+      type: "Véhicules en panne",
+      count: 0,
+      color: "#ef4444",
+      priority: "Critique",
+    },
   ];
+
+  const totalAlerts = data.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className={`bg-white shadow rounded-lg p-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Alertes actives
-      </h3>
-      <div className="h-64">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Alertes actives</h3>
+        <div className="text-sm text-gray-500">
+          Total: {totalAlerts} alertes
+        </div>
+      </div>
+
+      {/* Graphique en barres horizontales */}
+      <div className="h-64 mb-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="horizontal">
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="type" type="category" width={120} />
-            <Tooltip
-              formatter={(value: any) => [`${value} alertes`, "Quantité"]}
+          <BarChart
+            data={data}
+            layout="horizontal"
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis
+              type="number"
+              domain={[0, "dataMax"]}
+              tick={{ fontSize: 12 }}
+              tickFormatter={(value) => `${value}`}
             />
-            <Bar dataKey="count">
+            <YAxis
+              dataKey="type"
+              type="category"
+              width={120}
+              tick={{ fontSize: 12 }}
+            />
+            <Tooltip
+              formatter={(value: number) => [`${value} alertes`, "Quantité"]}
+              labelStyle={{ color: "#374151" }}
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+            <Bar dataKey="count" radius={[0, 4, 4, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Légende détaillée avec priorités */}
+      <div className="grid grid-cols-1 gap-3">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></div>
+              <div>
+                <span className="text-sm font-medium text-gray-700">
+                  {item.type}
+                </span>
+                <div className="text-xs text-gray-500">
+                  Priorité: {item.priority}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">
+                {item.count} alertes
+              </div>
+              {item.count > 0 && (
+                <div className="text-xs text-gray-500">Action requise</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Résumé des alertes critiques */}
+      {totalAlerts > 0 && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+            <span className="text-sm font-medium text-red-800">
+              {totalAlerts} alerte(s) nécessitant une attention immédiate
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Graphique en camembert pour le statut des véhicules
+export const VehicleStatusPieChart: React.FC<ChartProps> = ({
+  className = "",
+}) => {
+  const data = [
+    { name: "Actifs", value: 4, color: "#10b981" },
+    { name: "Maintenance", value: 1, color: "#f59e0b" },
+    { name: "Inactifs", value: 1, color: "#ef4444" },
+  ];
+
+  const totalVehicles = data.reduce((sum, item) => sum + item.value, 0);
+
+  return (
+    <div className={`bg-white shadow rounded-lg p-6 ${className}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Statut des véhicules
+        </h3>
+        <div className="text-sm text-gray-500">
+          Total: {totalVehicles} véhicules
+        </div>
+      </div>
+
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={90}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number) => [
+                `${value} véhicules (${((value / totalVehicles) * 100).toFixed(
+                  1
+                )}%)`,
+                "Quantité",
+              ]}
+              labelStyle={{ color: "#374151" }}
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Statistiques détaillées */}
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {data.map((item, index) => (
+          <div key={index} className="text-center p-2 bg-gray-50 rounded-lg">
+            <div
+              className="w-3 h-3 rounded-full mx-auto mb-1"
+              style={{ backgroundColor: item.color }}
+            ></div>
+            <div className="text-xs font-medium text-gray-700">{item.name}</div>
+            <div className="text-sm font-bold text-gray-900">{item.value}</div>
+            <div className="text-xs text-gray-500">
+              {((item.value / totalVehicles) * 100).toFixed(1)}%
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
