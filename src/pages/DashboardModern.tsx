@@ -20,6 +20,7 @@ import {
   MaintenanceCostsChart,
   VehicleTypeChart,
   VehicleStatusChart,
+  VehicleStatusPieChart,
   MonthlyCostsChart,
   DriverPerformanceChart,
   AlertsChart,
@@ -309,6 +310,10 @@ const DashboardModern: React.FC = () => {
               <VehicleTypeChart />
               <VehicleStatusChart />
             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <VehicleStatusPieChart />
+              <AlertsChart />
+            </div>
             <MonthlyCostsChart />
             <DriverPerformanceChart />
           </div>
@@ -348,6 +353,10 @@ const DashboardModern: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <VehicleStatusPieChart />
+              <VehicleTypeChart />
             </div>
           </div>
         );
